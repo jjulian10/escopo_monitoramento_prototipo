@@ -38,9 +38,13 @@ export default function SummaryCards({ cards }: SummaryCardsProps) {
             <div className="min-w-0">
               <p className="text-xl font-bold leading-tight text-gray-800">
                 {card.value}
-                <span className="ml-1.5 text-sm font-medium text-gray-500">{card.label}</span>
+                <span className="ml-1.5 whitespace-nowrap text-sm font-medium text-gray-500">
+  {card.label}
+</span>
               </p>
-              <p className="mt-0.5 truncate text-xs text-gray-400">{card.description}</p>
+              <p className="mt-0.5 text-xs text-gray-400">
+  {card.description}
+</p>
             </div>
           </div>
         );
