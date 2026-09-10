@@ -227,16 +227,85 @@ export interface Project {
 
   progress: number;
 
+  /*
+   * Data exibida na listagem principal do projeto.
+   *
+   * No protótipo utilizamos a data de entrega ou,
+   * quando ela não existir, a entrega estimada.
+   */
   deliveryDate: string;
 
+  /*
+   * Responsável principal pelo projeto.
+   *
+   * Atualmente corresponde ao gerente selecionado
+   * durante a criação.
+   */
   responsible: string;
 
   accessLevel?: AccessLevel;
 
-  // Tarefas / ações
+
+  // =======================================================
+  // IDENTIFICAÇÃO / CLASSIFICAÇÃO
+  // =======================================================
+
+  // Descrição geral do projeto
+  description?: string;
+
+  // Origem:
+  // demanda, melhoria, manutenção, PDTIC etc.
+  origin?: string;
+
+  // Nível:
+  // baixo, médio, alto, estratégico etc.
+  level?: string;
+
+  // Projeto pai, caso exista
+  parentProject?: string;
+
+  // Data em que o projeto foi criado
+  createdAt?: string;
+
+
+  // =======================================================
+  // GERENTE DO PROJETO
+  // =======================================================
+
+  // Usuário definido como gerente
+  managerUser?: string;
+
+  // Grupo responsável pelo projeto
+  managerGroup?: string;
+
+
+  // =======================================================
+  // PLANEJAMENTO
+  // =======================================================
+
+  // Entrega inicialmente estimada
+  estimatedDeliveryDate?: string;
+
+  // Data prevista/real de início
+  startDate?: string;
+
+  // Data de entrega do projeto
+  actualDeliveryDate?: string;
+
+
+  // =======================================================
+  // EXECUÇÃO
+  // =======================================================
+
+  // Tarefas / ações do projeto
   tasks?: ProjectTask[];
 
-  // Histórico de movimentações
+
+  // =======================================================
+  // HISTÓRICO
+  // =======================================================
+
+  // Registro das movimentações realizadas
   history?: ProjectHistoryItem[];
 }
 
