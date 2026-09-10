@@ -26,6 +26,8 @@ import ProjectActions from './project-actions/ProjectActions';
 
 import ProjectHistory from './ProjectHistory';
 
+import ProjectIndicators from './ProjectIndicators';
+
 
 /* ============================================================
    PROPRIEDADES DO MODAL
@@ -202,6 +204,27 @@ export default function ProjectDetailsModal({
      ========================================================== */
 
   function renderizarConteudo() {
+
+    /* --------------------------------------------------------
+   INDICADORES
+   -------------------------------------------------------- */
+
+if (
+  secaoAtiva ===
+  'indicadores'
+) {
+
+  return (
+
+    <ProjectIndicators
+      projeto={
+        projetoLocal
+      }
+    />
+
+  );
+
+}
 
 
     /* --------------------------------------------------------

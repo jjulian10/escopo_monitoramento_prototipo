@@ -57,6 +57,28 @@ export type ProjectTaskType =
   | 'Desenvolvimento';
 
 
+  // =========================================================
+// COMPROVAÇÃO DE CONCLUSÃO
+// =========================================================
+
+export interface ProjectCompletionEvidence {
+  // Observação informada pelo usuário
+  observation?: string;
+
+  // Nome da imagem anexada
+  imageName?: string;
+
+  // Nome do documento anexado
+  documentName?: string;
+
+  // Data/hora em que a conclusão foi confirmada
+  completedAt?: string;
+
+  // Usuário responsável pela conclusão
+  completedBy?: string;
+}
+
+
 // =========================================================
 // TIPOS DO HISTÓRICO
 // =========================================================
@@ -146,6 +168,9 @@ export interface ProjectSubtask {
 
   // Tipo
   type?: ProjectTaskType;
+
+  // Comprovação de conclusão
+completion?: ProjectCompletionEvidence;
 }
 
 

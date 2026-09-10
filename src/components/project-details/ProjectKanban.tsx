@@ -49,11 +49,14 @@ import type {
   ProjectTask,
   ProjectSubtask,
   ProjectHistoryItem,
+  ProjectCompletionEvidence,
   TaskStatusType,
   TagType,
 } from '@/data/projects';
 
 import TaskTags from '@/components/task-tags/TaskTags';
+
+import CompleteSubtaskModal from './CompleteSubtaskModal';
 
 
 /* ============================================================
@@ -80,6 +83,10 @@ interface KanbanProjetoProps {
 
 /* ============================================================
    ITEM DO KANBAN
+
+   O card representa uma SUBTAREFA.
+
+   Também guardamos informações da tarefa principal.
    ============================================================ */
 
 interface ItemKanban
@@ -94,7 +101,7 @@ interface ItemKanban
 
 
 /* ============================================================
-   COLUNAS
+   COLUNAS DO KANBAN
    ============================================================ */
 
 const colunasDoKanban: Array<{
@@ -190,7 +197,7 @@ const colunasDoKanban: Array<{
 
 
 /* ============================================================
-   VERIFICAR COLUNA
+   VERIFICAR SE O ID É UMA COLUNA
    ============================================================ */
 
 function ehStatusDeColuna(
@@ -206,7 +213,7 @@ function ehStatusDeColuna(
 
 
 /* ============================================================
-   GERAR ITENS
+   GERAR ITENS DO KANBAN
    ============================================================ */
 
 function gerarItensDoKanban(
@@ -241,7 +248,7 @@ function gerarItensDoKanban(
 
 
 /* ============================================================
-   STATUS DO DESTINO
+   ENCONTRAR STATUS DO DESTINO
    ============================================================ */
 
 function encontrarStatusDoDestino(
@@ -277,6 +284,262 @@ function encontrarStatusDoDestino(
 
 
 /* ============================================================
+   RECALCULAR TAREFA PRINCIPAL
+   ============================================================
+
+   Esta é uma das regras centrais do sistema.
+
+   Sempre que uma subtarefa mudar de status ou progresso,
+   recalculamos automaticamente:
+
+   - status da tarefa principal;
+   - progresso da tarefa principal.
+   ============================================================ */
+
+function recalcularTarefaPrincipal(
+  tarefa: ProjectTask
+): ProjectTask {
+
+  const subtarefas =
+    tarefa.subtasks ?? [];
+
+
+  /* ----------------------------------------------------------
+     SEM SUBTAREFAS
+
+     Se não houver subtarefas, mantemos os valores da tarefa.
+     ---------------------------------------------------------- */
+
+  if (
+    subtarefas.length === 0
+  ) {
+
+    return tarefa;
+
+  }
+
+
+  /* ==========================================================
+     PROGRESSO
+     ==========================================================
+
+     Média do progresso das subtarefas.
+     ========================================================== */
+
+  const somaDosProgressos =
+    subtarefas.reduce(
+      (
+        total,
+        subtarefa
+      ) =>
+
+        total +
+        (
+          subtarefa.progress ??
+          0
+        ),
+
+      0
+    );
+
+
+  const progressoCalculado =
+    Math.round(
+      somaDosProgressos /
+      subtarefas.length
+    );
+
+
+  /* ==========================================================
+     STATUS
+     ========================================================== */
+
+  const todasConcluidas =
+    subtarefas.every(
+      (subtarefa) =>
+        subtarefa.status ===
+        'Concluído'
+    );
+
+
+  const todasNaoIniciadas =
+    subtarefas.every(
+      (subtarefa) =>
+        subtarefa.status ===
+        'Não iniciado'
+    );
+
+
+  const possuiEmAndamento =
+    subtarefas.some(
+      (subtarefa) =>
+        subtarefa.status ===
+        'Em andamento'
+    );
+
+
+  const possuiHomologacao =
+    subtarefas.some(
+      (subtarefa) =>
+        subtarefa.status ===
+        'Homologação'
+    );
+
+
+  const possuiConcluida =
+    subtarefas.some(
+      (subtarefa) =>
+        subtarefa.status ===
+        'Concluído'
+    );
+
+
+  let novoStatus:
+    TaskStatusType;
+
+
+  /* ----------------------------------------------------------
+     100% CONCLUÍDA
+     ---------------------------------------------------------- */
+
+  if (
+    todasConcluidas
+  ) {
+
+    novoStatus =
+      'Concluído';
+
+  }
+
+
+  /* ----------------------------------------------------------
+     TODAS NÃO INICIADAS
+     ---------------------------------------------------------- */
+
+  else if (
+    todasNaoIniciadas
+  ) {
+
+    novoStatus =
+      'Não iniciado';
+
+  }
+
+
+  /* ----------------------------------------------------------
+     EXISTE ALGO EM EXECUÇÃO
+     ---------------------------------------------------------- */
+
+  else if (
+    possuiEmAndamento
+  ) {
+
+    novoStatus =
+      'Em andamento';
+
+  }
+
+
+  /* ----------------------------------------------------------
+     HOMOLOGAÇÃO
+
+     Só utilizamos Homologação quando não existe item em
+     execução.
+
+     Exemplo:
+
+     ✓ desenvolvimento concluído
+     ✓ outras subtarefas concluídas
+     ◇ uma subtarefa em homologação
+
+     → tarefa principal fica em Homologação.
+     ---------------------------------------------------------- */
+
+  else if (
+    possuiHomologacao
+  ) {
+
+    novoStatus =
+      'Homologação';
+
+  }
+
+
+  /* ----------------------------------------------------------
+     ALGUM TRABALHO JÁ FOI CONCLUÍDO
+
+     Exemplo:
+
+     ✓ Subtarefa 1 concluída
+     ○ Subtarefa 2 não iniciada
+
+     O projeto claramente já começou.
+
+     Portanto:
+     → Em andamento
+     ---------------------------------------------------------- */
+
+  else if (
+    possuiConcluida
+  ) {
+
+    novoStatus =
+      'Em andamento';
+
+  }
+
+
+  /* ----------------------------------------------------------
+     FALLBACK
+     ---------------------------------------------------------- */
+
+  else {
+
+    novoStatus =
+      'Não iniciado';
+
+  }
+
+
+  return {
+
+    ...tarefa,
+
+    status:
+      novoStatus,
+
+    progress:
+      novoStatus ===
+      'Concluído'
+
+        ? 100
+
+        : progressoCalculado,
+
+  };
+
+}
+
+
+/* ============================================================
+   RECALCULAR TODAS AS TAREFAS
+   ============================================================ */
+
+function recalcularTodasAsTarefas(
+  tarefas: ProjectTask[]
+): ProjectTask[] {
+
+  return tarefas.map(
+    (tarefa) =>
+      recalcularTarefaPrincipal(
+        tarefa
+      )
+  );
+
+}
+
+
+/* ============================================================
    COR DO PROGRESSO
    ============================================================ */
 
@@ -288,7 +551,9 @@ function definirCorDoProgresso(
     subtarefa.status ===
     'Concluído'
   ) {
+
     return 'bg-green-500';
+
   }
 
 
@@ -296,7 +561,9 @@ function definirCorDoProgresso(
     subtarefa.status ===
     'Homologação'
   ) {
+
     return 'bg-amber-500';
+
   }
 
 
@@ -304,7 +571,9 @@ function definirCorDoProgresso(
     subtarefa.status ===
     'Não iniciado'
   ) {
+
     return 'bg-slate-400';
+
   }
 
 
@@ -314,7 +583,7 @@ function definirCorDoProgresso(
 
 
 /* ============================================================
-   CONTEÚDO DO CARD
+   CONTEÚDO VISUAL DO CARD
    ============================================================ */
 
 function ConteudoCardSubtarefa({
@@ -341,7 +610,9 @@ function ConteudoCardSubtarefa({
 
     <>
 
-      {/* IDENTIFICAÇÃO */}
+      {/* ======================================================
+          IDENTIFICAÇÃO
+          ====================================================== */}
 
       <div
         className="
@@ -407,7 +678,9 @@ function ConteudoCardSubtarefa({
       </div>
 
 
-      {/* TÍTULO */}
+      {/* ======================================================
+          TÍTULO
+          ====================================================== */}
 
       <h4
         className="
@@ -421,7 +694,9 @@ function ConteudoCardSubtarefa({
       </h4>
 
 
-      {/* ETIQUETAS */}
+      {/* ======================================================
+          ETIQUETAS
+          ====================================================== */}
 
       {permitirEditarEtiquetas ? (
 
@@ -513,7 +788,9 @@ function ConteudoCardSubtarefa({
       )}
 
 
-      {/* PROGRESSO */}
+      {/* ======================================================
+          PROGRESSO
+          ====================================================== */}
 
       <div className="mt-4">
 
@@ -587,7 +864,9 @@ function ConteudoCardSubtarefa({
       </div>
 
 
-      {/* INFORMAÇÕES */}
+      {/* ======================================================
+          INFORMAÇÕES
+          ====================================================== */}
 
       <div
         className="
@@ -598,6 +877,8 @@ function ConteudoCardSubtarefa({
           pt-3
         "
       >
+
+        {/* RESPONSÁVEL */}
 
         <div
           className="
@@ -623,6 +904,8 @@ function ConteudoCardSubtarefa({
 
         </div>
 
+
+        {/* PRAZO */}
 
         {subtarefa.deliveryDate && (
 
@@ -652,6 +935,8 @@ function ConteudoCardSubtarefa({
 
         )}
 
+
+        {/* TIPO */}
 
         {subtarefa.type && (
 
@@ -684,7 +969,9 @@ function ConteudoCardSubtarefa({
       </div>
 
 
-      {/* IMPEDIMENTO */}
+      {/* ======================================================
+          IMPEDIMENTO
+          ====================================================== */}
 
       {etiquetas.includes(
         'Impedimento'
@@ -718,6 +1005,47 @@ function ConteudoCardSubtarefa({
         </div>
 
       )}
+
+
+      {/* ======================================================
+          COMPROVAÇÃO
+          ====================================================== */}
+
+      {subtarefa.status ===
+        'Concluído' &&
+        subtarefa.completion && (
+
+          <div
+            className="
+              mt-3
+              flex
+              items-center
+              gap-2
+              rounded-lg
+              border
+              border-green-100
+              bg-green-50
+              px-3
+              py-2
+              text-[11px]
+              font-medium
+              text-green-700
+            "
+          >
+
+            <CheckCircle2
+              className="
+                h-3.5
+                w-3.5
+                flex-shrink-0
+              "
+            />
+
+            Comprovação registrada
+
+          </div>
+
+        )}
 
     </>
 
@@ -806,6 +1134,10 @@ function CardDaSubtarefa({
         }
       `}
     >
+
+      {/* ======================================================
+          ALÇA
+          ====================================================== */}
 
       <button
         type="button"
@@ -986,6 +1318,10 @@ function ColunaKanban({
       `}
     >
 
+      {/* ======================================================
+          CABEÇALHO
+          ====================================================== */}
+
       <div
         className={`
           mb-3
@@ -1074,6 +1410,10 @@ function ColunaKanban({
       </div>
 
 
+      {/* ======================================================
+          LISTA
+          ====================================================== */}
+
       <SortableContext
         items={
           ids
@@ -1155,6 +1495,7 @@ function ColunaKanban({
                   Solte uma subtarefa aqui
                 </p>
 
+
                 <p
                   className="
                     mt-1
@@ -1195,7 +1536,7 @@ export default function ProjectKanban({
 
 
   /* ==========================================================
-     FILTROS
+     FILTRO POR TAREFA
      ========================================================== */
 
   const [
@@ -1206,6 +1547,10 @@ export default function ProjectKanban({
   );
 
 
+  /* ==========================================================
+     FILTRO POR RESPONSÁVEL
+     ========================================================== */
+
   const [
     responsavelSelecionado,
     setResponsavelSelecionado,
@@ -1215,7 +1560,7 @@ export default function ProjectKanban({
 
 
   /* ==========================================================
-     DRAG
+     SUBTAREFA ATIVA
      ========================================================== */
 
   const [
@@ -1226,6 +1571,10 @@ export default function ProjectKanban({
   );
 
 
+  /* ==========================================================
+     STATUS ORIGINAL
+     ========================================================== */
+
   const [
     statusOriginal,
     setStatusOriginal,
@@ -1235,13 +1584,25 @@ export default function ProjectKanban({
 
 
   /* ==========================================================
-     SNAPSHOT PARA CANCELAMENTO
+     SNAPSHOT
      ========================================================== */
 
   const [
     tarefasAntesDoArraste,
     setTarefasAntesDoArraste,
   ] = useState<ProjectTask[] | null>(
+    null
+  );
+
+
+  /* ==========================================================
+     AGUARDANDO COMPROVAÇÃO
+     ========================================================== */
+
+  const [
+    subtarefaParaConcluir,
+    setSubtarefaParaConcluir,
+  ] = useState<ItemKanban | null>(
     null
   );
 
@@ -1289,7 +1650,7 @@ export default function ProjectKanban({
 
 
   /* ==========================================================
-     FILTRO
+     FILTROS
      ========================================================== */
 
   const itensFiltrados =
@@ -1298,6 +1659,7 @@ export default function ProjectKanban({
 
         todosOsItens.filter(
           (item) => {
+
 
             const tarefaOk =
 
@@ -1354,7 +1716,34 @@ export default function ProjectKanban({
 
 
   /* ==========================================================
-     ETIQUETAS
+     ENVIAR TAREFAS ATUALIZADAS
+     ==========================================================
+
+     Qualquer alteração importante passa por aqui.
+
+     Antes de enviar para o modal, recalculamos todas as
+     tarefas principais.
+     ========================================================== */
+
+  function enviarTarefasAtualizadas(
+    novasTarefas: ProjectTask[]
+  ) {
+
+    const tarefasRecalculadas =
+      recalcularTodasAsTarefas(
+        novasTarefas
+      );
+
+
+    aoAlterarTarefas(
+      tarefasRecalculadas
+    );
+
+  }
+
+
+  /* ==========================================================
+     ALTERAR ETIQUETAS
      ========================================================== */
 
   function alterarEtiquetasDaSubtarefa(
@@ -1366,14 +1755,16 @@ export default function ProjectKanban({
     const tarefa =
       tarefas.find(
         (item) =>
-          item.id === tarefaId
+          item.id ===
+          tarefaId
       );
 
 
     const subtarefa =
       tarefa?.subtasks?.find(
         (item) =>
-          item.id === subtarefaId
+          item.id ===
+          subtarefaId
       );
 
 
@@ -1381,12 +1772,15 @@ export default function ProjectKanban({
       !tarefa ||
       !subtarefa
     ) {
+
       return;
+
     }
 
 
     const anteriores =
-      subtarefa.tags ?? [];
+      subtarefa.tags ??
+      [];
 
 
     const adicionadas =
@@ -1411,7 +1805,8 @@ export default function ProjectKanban({
       tarefas.map(
         (item) =>
 
-          item.id === tarefaId
+          item.id ===
+          tarefaId
 
             ? {
                 ...item,
@@ -1434,19 +1829,21 @@ export default function ProjectKanban({
                           }
 
                         : subitem
-
                   ),
               }
 
             : item
-
       );
 
 
-    aoAlterarTarefas(
+    enviarTarefasAtualizadas(
       tarefasAtualizadas
     );
 
+
+    /* ========================================================
+       HISTÓRICO — ADICIONADAS
+       ======================================================== */
 
     adicionadas.forEach(
       (etiqueta) => {
@@ -1489,6 +1886,10 @@ export default function ProjectKanban({
       }
     );
 
+
+    /* ========================================================
+       HISTÓRICO — REMOVIDAS
+       ======================================================== */
 
     removidas.forEach(
       (etiqueta) => {
@@ -1535,7 +1936,7 @@ export default function ProjectKanban({
 
 
   /* ==========================================================
-     ALTERAR STATUS
+     ALTERAR STATUS DA SUBTAREFA
      ========================================================== */
 
   function atualizarStatusDaSubtarefa(
@@ -1567,14 +1968,13 @@ export default function ProjectKanban({
                     }
 
                   : subtarefa
-
             ),
 
         })
       );
 
 
-    aoAlterarTarefas(
+    enviarTarefasAtualizadas(
       tarefasAtualizadas
     );
 
@@ -1582,7 +1982,7 @@ export default function ProjectKanban({
 
 
   /* ==========================================================
-     INICIAR
+     INÍCIO DO ARRASTE
      ========================================================== */
 
   function iniciarArraste(
@@ -1598,7 +1998,8 @@ export default function ProjectKanban({
     const subtarefa =
       todosOsItens.find(
         (item) =>
-          item.id === id
+          item.id ===
+          id
       );
 
 
@@ -1622,7 +2023,7 @@ export default function ProjectKanban({
 
 
   /* ==========================================================
-     DURANTE
+     DURANTE O ARRASTE
      ========================================================== */
 
   function duranteArraste(
@@ -1636,7 +2037,9 @@ export default function ProjectKanban({
 
 
     if (!over) {
+
       return;
+
     }
 
 
@@ -1661,7 +2064,9 @@ export default function ProjectKanban({
 
 
     if (!itemAtual) {
+
       return;
+
     }
 
 
@@ -1677,7 +2082,23 @@ export default function ProjectKanban({
       novoStatus ===
         itemAtual.status
     ) {
+
       return;
+
+    }
+
+
+    /* --------------------------------------------------------
+       CONCLUÍDO EXIGE COMPROVAÇÃO
+       -------------------------------------------------------- */
+
+    if (
+      novoStatus ===
+      'Concluído'
+    ) {
+
+      return;
+
     }
 
 
@@ -1690,7 +2111,7 @@ export default function ProjectKanban({
 
 
   /* ==========================================================
-     FINALIZAR
+     FINALIZAR ARRASTE
      ========================================================== */
 
   function finalizarArraste(
@@ -1721,9 +2142,9 @@ export default function ProjectKanban({
     );
 
 
-    /* --------------------------------------------------------
+    /* ========================================================
        SOLTOU FORA
-       -------------------------------------------------------- */
+       ======================================================== */
 
     if (!over) {
 
@@ -1767,9 +2188,56 @@ export default function ProjectKanban({
       );
 
 
-    /* --------------------------------------------------------
-       REGISTRO DE STATUS
-       -------------------------------------------------------- */
+    /* ========================================================
+       TENTATIVA DE CONCLUSÃO
+       ======================================================== */
+
+    if (
+      itemOriginal &&
+      statusInicial !==
+        'Concluído' &&
+      statusFinal ===
+        'Concluído'
+    ) {
+
+
+      /* ------------------------------------------------------
+         RESTAURA O SNAPSHOT
+         ------------------------------------------------------ */
+
+      if (
+        tarefasAntesDoArraste
+      ) {
+
+        aoAlterarTarefas(
+          tarefasAntesDoArraste
+        );
+
+      }
+
+
+      /* ------------------------------------------------------
+         ABRE O MODAL
+         ------------------------------------------------------ */
+
+      setSubtarefaParaConcluir(
+        itemOriginal
+      );
+
+
+      setTarefasAntesDoArraste(
+        null
+      );
+
+
+      return;
+
+    }
+
+
+    /* ========================================================
+       REGISTRO DE ALTERAÇÃO NORMAL
+       ======================================================== */
 
     if (
       itemOriginal &&
@@ -1825,21 +2293,23 @@ export default function ProjectKanban({
     );
 
 
-    /* --------------------------------------------------------
+    /* ========================================================
        MESMO ELEMENTO
-       -------------------------------------------------------- */
+       ======================================================== */
 
     if (
       idAtivo ===
       idDestino
     ) {
+
       return;
+
     }
 
 
-    /* --------------------------------------------------------
+    /* ========================================================
        REORDENAÇÃO
-       -------------------------------------------------------- */
+       ======================================================== */
 
     const itemAtivo =
       todosOsItens.find(
@@ -1927,23 +2397,26 @@ export default function ProjectKanban({
         );
 
 
-      aoAlterarTarefas(
+      enviarTarefasAtualizadas(
         tarefasAtualizadas
       );
+
 
       return;
 
     }
 
 
-    /* --------------------------------------------------------
-       COLUNA
-       -------------------------------------------------------- */
+    /* ========================================================
+       SOLTOU DIRETAMENTE NA COLUNA
+       ======================================================== */
 
     if (
       ehStatusDeColuna(
         idDestino
-      )
+      ) &&
+      idDestino !==
+        'Concluído'
     ) {
 
       atualizarStatusDaSubtarefa(
@@ -1957,7 +2430,7 @@ export default function ProjectKanban({
 
 
   /* ==========================================================
-     CANCELAR
+     CANCELAR ARRASTE
      ========================================================== */
 
   function cancelarArraste() {
@@ -1984,6 +2457,167 @@ export default function ProjectKanban({
 
 
     setTarefasAntesDoArraste(
+      null
+    );
+
+  }
+
+
+  /* ==========================================================
+     CONFIRMAR CONCLUSÃO
+     ========================================================== */
+
+  function confirmarConclusao(
+    evidencia: ProjectCompletionEvidence
+  ) {
+
+    if (
+      !subtarefaParaConcluir
+    ) {
+
+      return;
+
+    }
+
+
+    const subtarefa =
+      subtarefaParaConcluir;
+
+
+    /* ========================================================
+       ATUALIZA A SUBTAREFA
+       ======================================================== */
+
+    const tarefasAtualizadas =
+      tarefas.map(
+        (tarefa) => {
+
+
+          if (
+            tarefa.id !==
+            subtarefa.tarefaId
+          ) {
+
+            return tarefa;
+
+          }
+
+
+          return {
+
+            ...tarefa,
+
+            subtasks:
+              (
+                tarefa.subtasks ??
+                []
+              ).map(
+                (item) =>
+
+                  item.id ===
+                  subtarefa.id
+
+                    ? {
+                        ...item,
+
+                        status:
+                          'Concluído',
+
+                        progress:
+                          100,
+
+                        completion:
+                          evidencia,
+                      }
+
+                    : item
+              ),
+
+          };
+
+        }
+      );
+
+
+    /* ========================================================
+       IMPORTANTE
+
+       Aqui a função também recalcula automaticamente a
+       tarefa principal.
+
+       Se todas as subtarefas estiverem concluídas:
+
+       tarefa.status = Concluído
+       tarefa.progress = 100
+       ======================================================== */
+
+    enviarTarefasAtualizadas(
+      tarefasAtualizadas
+    );
+
+
+    /* ========================================================
+       HISTÓRICO
+       ======================================================== */
+
+    aoRegistrarHistorico({
+
+      type:
+        'status_changed',
+
+      title:
+        'Subtarefa concluída',
+
+      description:
+        `A subtarefa "${subtarefa.title}" foi concluída com comprovação registrada.`,
+
+      user:
+        evidencia.completedBy ??
+        subtarefa.responsible,
+
+      metadata: {
+
+        previousValue:
+          subtarefa.status,
+
+        newValue:
+          'Concluído',
+
+        taskId:
+          subtarefa.tarefaId,
+
+        taskTitle:
+          subtarefa.tarefaTitulo,
+
+        subtaskId:
+          subtarefa.id,
+
+        subtaskTitle:
+          subtarefa.title,
+
+      },
+
+    });
+
+
+    /* ========================================================
+       FECHA MODAL
+       ======================================================== */
+
+    setSubtarefaParaConcluir(
+      null
+    );
+
+  }
+
+
+  /* ==========================================================
+     CANCELAR CONCLUSÃO
+     ========================================================== */
+
+  function cancelarConclusao() {
+
+    setSubtarefaParaConcluir(
       null
     );
 
@@ -2055,7 +2689,9 @@ export default function ProjectKanban({
       <div className="space-y-6">
 
 
-        {/* CABEÇALHO */}
+        {/* ====================================================
+            CABEÇALHO
+            ==================================================== */}
 
         <div
           className="
@@ -2102,6 +2738,10 @@ export default function ProjectKanban({
           </div>
 
 
+          {/* ==================================================
+              RESUMO
+              ================================================== */}
+
           <div
             className="
               flex
@@ -2130,6 +2770,7 @@ export default function ProjectKanban({
               >
                 Subtarefas
               </p>
+
 
               <p
                 className="
@@ -2167,6 +2808,7 @@ export default function ProjectKanban({
                 Concluído
               </p>
 
+
               <p
                 className="
                   text-lg
@@ -2184,7 +2826,9 @@ export default function ProjectKanban({
         </div>
 
 
-        {/* FILTROS */}
+        {/* ====================================================
+            FILTROS
+            ==================================================== */}
 
         <div
           className="
@@ -2199,6 +2843,8 @@ export default function ProjectKanban({
             sm:grid-cols-2
           "
         >
+
+          {/* TAREFA */}
 
           <div>
 
@@ -2270,6 +2916,8 @@ export default function ProjectKanban({
 
           </div>
 
+
+          {/* RESPONSÁVEL */}
 
           <div>
 
@@ -2344,7 +2992,9 @@ export default function ProjectKanban({
         </div>
 
 
-        {/* QUADRO */}
+        {/* ====================================================
+            QUADRO
+            ==================================================== */}
 
         {todosOsItens.length === 0 ? (
 
@@ -2460,7 +3110,9 @@ export default function ProjectKanban({
       </div>
 
 
-      {/* CARD FLUTUANTE */}
+      {/* ======================================================
+          CARD FLUTUANTE
+          ====================================================== */}
 
       <DragOverlay
         dropAnimation={{
@@ -2483,6 +3135,29 @@ export default function ProjectKanban({
         ) : null}
 
       </DragOverlay>
+
+
+      {/* ======================================================
+          MODAL DE CONCLUSÃO
+          ====================================================== */}
+
+      {subtarefaParaConcluir && (
+
+        <CompleteSubtaskModal
+          subtarefa={
+            subtarefaParaConcluir
+          }
+
+          aoFechar={
+            cancelarConclusao
+          }
+
+          aoConfirmar={
+            confirmarConclusao
+          }
+        />
+
+      )}
 
     </DndContext>
 
