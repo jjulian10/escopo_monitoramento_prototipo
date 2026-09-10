@@ -27,6 +27,8 @@ import StrategicView from '@/components/StrategicView';
 
 import CreateProjectModal from '@/components/project-create/CreateProjectModal';
 
+import ProjectDetailsModal from '@/components/project-details/ProjectDetailsModal';
+
 
 /* ============================================================
    TIPOS
@@ -39,6 +41,14 @@ import type {
 import type {
   Project,
 } from '@/data/projects';
+
+import type {
+  AlertaPrazo,
+} from '@/utils/projectAlerts';
+
+import type {
+  SecaoDetalhesProjeto,
+} from '@/components/project-details/ProjectDetailsSidebar';
 
 
 /* ============================================================
@@ -102,21 +112,6 @@ export default function App() {
 
   /* ==========================================================
      PROJETOS DO USUÁRIO
-     ==========================================================
-
-     O arquivo projects.ts fornece apenas os dados iniciais.
-
-     A partir daqui, a aplicação trabalha com este estado.
-
-     Isso permite:
-
-     - criar projetos;
-     - editar projetos;
-     - alterar tarefas;
-     - alterar subtarefas;
-     - movimentar Kanban;
-     - atualizar histórico;
-     - refletir mudanças imediatamente na interface.
      ========================================================== */
 
   const [
@@ -124,6 +119,30 @@ export default function App() {
     setMeusProjetos,
   ] = useState<Project[]>(
     projects
+  );
+
+
+  /* ==========================================================
+     PROJETO ABERTO NO MODAL
+     ========================================================== */
+
+  const [
+    projetoSelecionado,
+    setProjetoSelecionado,
+  ] = useState<Project | null>(
+    null
+  );
+
+
+  /* ==========================================================
+     SEÇÃO INICIAL DO MODAL
+     ========================================================== */
+
+  const [
+    secaoInicialDoModal,
+    setSecaoInicialDoModal,
+  ] = useState<SecaoDetalhesProjeto>(
+    'informacoes'
   );
 
 
@@ -216,19 +235,11 @@ export default function App() {
 
   /* ==========================================================
      ADICIONAR NOVO PROJETO
-     ==========================================================
-
-     Recebe o projeto criado pelo CreateProjectModal.
      ========================================================== */
 
   function adicionarNovoProjeto(
     novoProjeto: Project
   ) {
-
-
-    /* --------------------------------------------------------
-       ADICIONA NO TOPO DA LISTA
-       -------------------------------------------------------- */
 
     setMeusProjetos(
       (projetosAtuais) => [
@@ -241,29 +252,15 @@ export default function App() {
     );
 
 
-    /* --------------------------------------------------------
-       VOLTA PARA MEUS PROJETOS
-       -------------------------------------------------------- */
-
     setAbaAtiva(
       'mine'
     );
 
 
-    /* --------------------------------------------------------
-       LIMPA FILTROS
-
-       Evita que o projeto recém-criado fique escondido.
-       -------------------------------------------------------- */
-
     setFiltrosAplicados(
       filtrosIniciais
     );
 
-
-    /* --------------------------------------------------------
-       FECHA O MODAL
-       -------------------------------------------------------- */
 
     setModalCriarProjetoAberto(
       false
@@ -274,20 +271,6 @@ export default function App() {
 
   /* ==========================================================
      ATUALIZAR PROJETO
-     ==========================================================
-
-     Esta função será a porta central para todas as alterações
-     realizadas dentro de um projeto.
-
-     Exemplos:
-
-     - mudança no Kanban;
-     - criação de tarefa;
-     - exclusão de tarefa;
-     - criação de subtarefa;
-     - alteração de etiquetas;
-     - alteração de progresso;
-     - atualização do histórico.
      ========================================================== */
 
   function atualizarProjeto(
@@ -308,7 +291,153 @@ export default function App() {
               : projeto
 
         )
+    );
 
+
+    /* --------------------------------------------------------
+       SE O PROJETO ESTIVER ABERTO, ATUALIZA TAMBÉM O MODAL
+       -------------------------------------------------------- */
+
+    setProjetoSelecionado(
+      (projetoAtual) =>
+
+        projetoAtual?.id ===
+        projetoAtualizado.id
+
+          ? projetoAtualizado
+
+          : projetoAtual
+    );
+
+  }
+
+
+  /* ==========================================================
+     ABRIR PROJETO
+     ========================================================== */
+
+  function abrirProjeto(
+    projeto: Project,
+    secao: SecaoDetalhesProjeto =
+      'informacoes'
+  ) {
+
+    setSecaoInicialDoModal(
+      secao
+    );
+
+
+    setProjetoSelecionado(
+      projeto
+    );
+
+  }
+
+
+  /* ==========================================================
+     ABRIR ALERTA
+     ========================================================== */
+
+  function abrirAlerta(
+    alerta: AlertaPrazo
+  ) {
+
+
+    /* --------------------------------------------------------
+       PROCURA PRIMEIRO NOS MEUS PROJETOS
+       -------------------------------------------------------- */
+
+    const projeto =
+      meusProjetos.find(
+        (item) =>
+          item.id ===
+          alerta.projetoId
+      ) ??
+
+      sharedProjects.find(
+        (item) =>
+          item.id ===
+          alerta.projetoId
+      );
+
+
+    if (!projeto) {
+      return;
+    }
+
+
+    /* --------------------------------------------------------
+       DEFINE A ABA DA TELA PRINCIPAL
+       -------------------------------------------------------- */
+
+    const estaNosMeusProjetos =
+      meusProjetos.some(
+        (item) =>
+          item.id ===
+          projeto.id
+      );
+
+
+    setAbaAtiva(
+      estaNosMeusProjetos
+        ? 'mine'
+        : 'shared'
+    );
+
+
+    /* --------------------------------------------------------
+       LIMPA FILTROS
+       -------------------------------------------------------- */
+
+    setFiltrosAplicados(
+      filtrosIniciais
+    );
+
+
+    /* --------------------------------------------------------
+       DEFINE QUAL ÁREA DO MODAL ABRIR
+       --------------------------------------------------------
+
+       Projeto
+       → Informações
+
+       Tarefa
+       → Ações do Projeto
+
+       Subtarefa
+       → Kanban
+       -------------------------------------------------------- */
+
+    let secao:
+      SecaoDetalhesProjeto =
+        'informacoes';
+
+
+    if (
+      alerta.nivel ===
+      'tarefa'
+    ) {
+
+      secao =
+        'acoes';
+
+    }
+
+
+    if (
+      alerta.nivel ===
+      'subtarefa'
+    ) {
+
+      secao =
+        'kanban';
+
+    }
+
+
+    abrirProjeto(
+      projeto,
+      secao
     );
 
   }
@@ -332,10 +461,6 @@ export default function App() {
       (projeto) => {
 
 
-        /* -----------------------------------------------------
-           FILTRO POR PROJETO
-           ----------------------------------------------------- */
-
         const correspondeAoProjeto =
 
           filtrosAplicados.projeto ===
@@ -345,10 +470,6 @@ export default function App() {
             filtrosAplicados.projeto;
 
 
-        /* -----------------------------------------------------
-           FILTRO POR STATUS
-           ----------------------------------------------------- */
-
         const correspondeAoStatus =
 
           filtrosAplicados.status ===
@@ -357,10 +478,6 @@ export default function App() {
           projeto.status ===
             filtrosAplicados.status;
 
-
-        /* -----------------------------------------------------
-           FILTRO POR RESPONSÁVEL
-           ----------------------------------------------------- */
 
         const nomeDoResponsavel =
 
@@ -385,10 +502,6 @@ export default function App() {
           );
 
 
-        /* -----------------------------------------------------
-           RESULTADO
-           ----------------------------------------------------- */
-
         return (
 
           correspondeAoProjeto &&
@@ -406,7 +519,7 @@ export default function App() {
 
 
   /* ==========================================================
-     MEUS PROJETOS FILTRADOS
+     PROJETOS FILTRADOS
      ========================================================== */
 
   const meusProjetosFiltrados =
@@ -415,10 +528,6 @@ export default function App() {
       meusProjetos
     );
 
-
-  /* ==========================================================
-     COMPARTILHADOS FILTRADOS
-     ========================================================== */
 
   const projetosCompartilhadosFiltrados =
 
@@ -446,20 +555,16 @@ export default function App() {
           ====================================================== */}
 
       <Sidebar
-
         collapsed={
           barraLateralRecolhida
         }
 
         onToggle={() =>
-
           setBarraLateralRecolhida(
             (estadoAtual) =>
               !estadoAtual
           )
-
         }
-
       />
 
 
@@ -489,7 +594,16 @@ export default function App() {
             HEADER
             ==================================================== */}
 
-        <Header />
+        <Header
+          projetos={[
+            ...meusProjetos,
+            ...sharedProjects,
+          ]}
+
+          aoSelecionarAlerta={
+            abrirAlerta
+          }
+        />
 
 
         {/* ====================================================
@@ -568,12 +682,7 @@ export default function App() {
             </div>
 
 
-            {/* =================================================
-                CRIAR NOVO PROJETO
-                ================================================= */}
-
             <button
-
               onClick={() =>
                 setModalCriarProjetoAberto(
                   true
@@ -614,7 +723,6 @@ export default function App() {
           {modalCriarProjetoAberto && (
 
             <CreateProjectModal
-
               aoFechar={() =>
                 setModalCriarProjetoAberto(
                   false
@@ -624,7 +732,6 @@ export default function App() {
               aoCriarProjeto={
                 adicionarNovoProjeto
               }
-
             />
 
           )}
@@ -635,7 +742,6 @@ export default function App() {
               ================================================== */}
 
           <TabCards
-
             tabs={
               tabs
             }
@@ -647,7 +753,6 @@ export default function App() {
             onTabChange={
               setAbaAtiva
             }
-
           />
 
 
@@ -656,7 +761,6 @@ export default function App() {
               ================================================== */}
 
           <Filters
-
             aoFiltrar={
               aplicarFiltros
             }
@@ -664,7 +768,6 @@ export default function App() {
             aoLimpar={
               limparFiltros
             }
-
           />
 
 
@@ -686,7 +789,6 @@ export default function App() {
           {abaAtiva === 'mine' && (
 
             <ProjectList
-
               projects={
                 meusProjetosFiltrados
               }
@@ -703,6 +805,9 @@ export default function App() {
                 atualizarProjeto
               }
 
+              aoAbrirProjeto={
+                abrirProjeto
+              }
             />
 
           )}
@@ -715,7 +820,6 @@ export default function App() {
           {abaAtiva === 'shared' && (
 
             <ProjectList
-
               projects={
                 projetosCompartilhadosFiltrados
               }
@@ -730,6 +834,9 @@ export default function App() {
 
               showAccess
 
+              aoAbrirProjeto={
+                abrirProjeto
+              }
             />
 
           )}
@@ -753,6 +860,35 @@ export default function App() {
         </main>
 
       </div>
+
+
+      {/* ======================================================
+          MODAL GLOBAL DO PROJETO
+          ====================================================== */}
+
+      {projetoSelecionado && (
+
+        <ProjectDetailsModal
+          projeto={
+            projetoSelecionado
+          }
+
+          secaoInicial={
+            secaoInicialDoModal
+          }
+
+          aoFechar={() =>
+            setProjetoSelecionado(
+              null
+            )
+          }
+
+          aoAtualizarProjeto={
+            atualizarProjeto
+          }
+        />
+
+      )}
 
     </div>
 

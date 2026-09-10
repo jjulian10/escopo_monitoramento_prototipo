@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import {
+  useState,
+} from 'react';
 
 import {
   Calendar,
@@ -18,9 +20,11 @@ import type {
   TaskStatusType,
 } from '@/data/projects';
 
-import ProjectTags from '@/components/project-tags/ProjectTags';
+import type {
+  SecaoDetalhesProjeto,
+} from '@/components/project-details/ProjectDetailsSidebar';
 
-import ProjectDetailsModal from '@/components/project-details/ProjectDetailsModal';
+import ProjectTags from '@/components/project-tags/ProjectTags';
 
 
 /* ============================================================
@@ -37,11 +41,23 @@ interface ListaDeProjetosProps {
   showAccess?: boolean;
 
   /*
-   * Recebe do App.tsx a função responsável por atualizar
-   * o projeto no estado principal da aplicação.
+   * Mantido por compatibilidade com o App.tsx.
+   *
+   * O modal agora é controlado globalmente pelo App.
    */
   aoAtualizarProjeto?: (
     projeto: Project
+  ) => void;
+
+  /*
+   * Solicita ao App.tsx a abertura de um projeto.
+   *
+   * Também podemos informar em qual seção
+   * o modal deve abrir.
+   */
+  aoAbrirProjeto?: (
+    projeto: Project,
+    secao?: SecaoDetalhesProjeto
   ) => void;
 }
 
@@ -57,25 +73,39 @@ const configuracaoDosStatus: Record<
     corDoTexto: string;
   }
 > = {
+
   'Em andamento': {
-    corDoPonto: 'bg-blue-500',
-    corDoTexto: 'text-blue-700',
+    corDoPonto:
+      'bg-blue-500',
+
+    corDoTexto:
+      'text-blue-700',
   },
 
   Atrasado: {
-    corDoPonto: 'bg-red-500',
-    corDoTexto: 'text-red-700',
+    corDoPonto:
+      'bg-red-500',
+
+    corDoTexto:
+      'text-red-700',
   },
 
   Pausado: {
-    corDoPonto: 'bg-gray-400',
-    corDoTexto: 'text-gray-600',
+    corDoPonto:
+      'bg-gray-400',
+
+    corDoTexto:
+      'text-gray-600',
   },
 
   Concluído: {
-    corDoPonto: 'bg-green-500',
-    corDoTexto: 'text-green-700',
+    corDoPonto:
+      'bg-green-500',
+
+    corDoTexto:
+      'text-green-700',
   },
+
 };
 
 
@@ -91,29 +121,51 @@ const configuracaoStatusTarefa: Record<
     fundo: string;
   }
 > = {
+
   'Não iniciado': {
-    ponto: 'bg-gray-400',
-    texto: 'text-gray-600',
-    fundo: 'bg-gray-50',
+    ponto:
+      'bg-gray-400',
+
+    texto:
+      'text-gray-600',
+
+    fundo:
+      'bg-gray-50',
   },
 
   'Em andamento': {
-    ponto: 'bg-blue-500',
-    texto: 'text-blue-700',
-    fundo: 'bg-blue-50/40',
+    ponto:
+      'bg-blue-500',
+
+    texto:
+      'text-blue-700',
+
+    fundo:
+      'bg-blue-50/40',
   },
 
   Homologação: {
-    ponto: 'bg-amber-500',
-    texto: 'text-amber-700',
-    fundo: 'bg-amber-50/40',
+    ponto:
+      'bg-amber-500',
+
+    texto:
+      'text-amber-700',
+
+    fundo:
+      'bg-amber-50/40',
   },
 
   Concluído: {
-    ponto: 'bg-green-500',
-    texto: 'text-green-700',
-    fundo: 'bg-green-50/40',
+    ponto:
+      'bg-green-500',
+
+    texto:
+      'text-green-700',
+
+    fundo:
+      'bg-green-50/40',
   },
+
 };
 
 
@@ -125,6 +177,7 @@ const estilosDeAcesso: Record<
   AccessLevel,
   string
 > = {
+
   Colaborador:
     'bg-blue-50 text-blue-600',
 
@@ -133,6 +186,7 @@ const estilosDeAcesso: Record<
 
   Visualizador:
     'bg-gray-100 text-gray-500',
+
 };
 
 
@@ -144,23 +198,48 @@ function definirCorDoProgresso(
   progresso: number,
   status: StatusType
 ) {
-  if (status === 'Concluído') {
+
+  if (
+    status ===
+    'Concluído'
+  ) {
+
     return 'bg-green-500';
+
   }
 
-  if (status === 'Atrasado') {
+
+  if (
+    status ===
+    'Atrasado'
+  ) {
+
     return 'bg-red-500';
+
   }
 
-  if (status === 'Pausado') {
+
+  if (
+    status ===
+    'Pausado'
+  ) {
+
     return 'bg-gray-400';
+
   }
 
-  if (progresso < 50) {
+
+  if (
+    progresso < 50
+  ) {
+
     return 'bg-amber-500';
+
   }
+
 
   return 'bg-institution-600';
+
 }
 
 
@@ -171,19 +250,39 @@ function definirCorDoProgresso(
 function definirCorProgressoTarefa(
   status: TaskStatusType
 ) {
-  if (status === 'Concluído') {
+
+  if (
+    status ===
+    'Concluído'
+  ) {
+
     return 'bg-green-500';
+
   }
 
-  if (status === 'Homologação') {
+
+  if (
+    status ===
+    'Homologação'
+  ) {
+
     return 'bg-amber-500';
+
   }
 
-  if (status === 'Não iniciado') {
+
+  if (
+    status ===
+    'Não iniciado'
+  ) {
+
     return 'bg-gray-400';
+
   }
+
 
   return 'bg-blue-500';
+
 }
 
 
@@ -198,12 +297,9 @@ interface LinhaDoProjetoProps {
 
   mostrarAcesso?: boolean;
 
-  aoAbrirDetalhes: (
-    projeto: Project
-  ) => void;
-
-  aoAbrirKanban: (
-    projeto: Project
+  aoAbrirProjeto: (
+    projeto: Project,
+    secao: SecaoDetalhesProjeto
   ) => void;
 }
 
@@ -216,8 +312,7 @@ function LinhaDoProjeto({
   projeto,
   indice,
   mostrarAcesso,
-  aoAbrirDetalhes,
-  aoAbrirKanban,
+  aoAbrirProjeto,
 }: LinhaDoProjetoProps) {
 
 
@@ -246,11 +341,18 @@ function LinhaDoProjeto({
      ========================================================== */
 
   function alternarTarefas() {
+
     setEstaExpandido(
-      (estadoAtual) => !estadoAtual
+      (estadoAtual) =>
+        !estadoAtual
     );
+
   }
 
+
+  /* ==========================================================
+     INTERFACE
+     ========================================================== */
 
   return (
 
@@ -267,8 +369,10 @@ function LinhaDoProjeto({
         hover:border-institution-200
         hover:shadow-card-hover
       "
+
       style={{
-        animationDelay: `${indice * 60}ms`,
+        animationDelay:
+          `${indice * 60}ms`,
       }}
     >
 
@@ -323,7 +427,13 @@ function LinhaDoProjeto({
               NOME + ETIQUETAS
               ================================================== */}
 
-          <div className="min-w-0 flex-1 lg:max-w-[320px]">
+          <div
+            className="
+              min-w-0
+              flex-1
+              lg:max-w-[320px]
+            "
+          >
 
             <h3
               className="
@@ -334,7 +444,11 @@ function LinhaDoProjeto({
               "
             >
 
-              <span className="text-institution-700">
+              <span
+                className="
+                  text-institution-700
+                "
+              >
                 {projeto.code}
               </span>
 
@@ -345,6 +459,10 @@ function LinhaDoProjeto({
             </h3>
 
 
+            {/* =================================================
+                ETIQUETAS
+                ================================================= */}
+
             <ProjectTags
               etiquetasIniciais={
                 projeto.tags
@@ -352,9 +470,9 @@ function LinhaDoProjeto({
             />
 
 
-            {/* ==================================================
+            {/* =================================================
                 NÍVEL DE ACESSO
-                ================================================== */}
+                ================================================= */}
 
             {mostrarAcesso &&
               projeto.accessLevel && (
@@ -397,9 +515,20 @@ function LinhaDoProjeto({
               STATUS
               ================================================== */}
 
-          <div className="flex-shrink-0 lg:w-28">
+          <div
+            className="
+              flex-shrink-0
+              lg:w-28
+            "
+          >
 
-            <div className="flex items-center gap-2">
+            <div
+              className="
+                flex
+                items-center
+                gap-2
+              "
+            >
 
               <span
                 className={`
@@ -410,6 +539,7 @@ function LinhaDoProjeto({
                   ${configuracaoStatus.corDoPonto}
                 `}
               />
+
 
               <span
                 className={`
@@ -432,7 +562,12 @@ function LinhaDoProjeto({
               PROGRESSO
               ================================================== */}
 
-          <div className="flex-shrink-0 lg:w-36">
+          <div
+            className="
+              flex-shrink-0
+              lg:w-36
+            "
+          >
 
             <div
               className="
@@ -443,11 +578,23 @@ function LinhaDoProjeto({
               "
             >
 
-              <span className="text-xs text-gray-500">
+              <span
+                className="
+                  text-xs
+                  text-gray-500
+                "
+              >
                 Progresso
               </span>
 
-              <span className="text-xs font-bold text-gray-700">
+
+              <span
+                className="
+                  text-xs
+                  font-bold
+                  text-gray-700
+                "
+              >
                 {projeto.progress}%
               </span>
 
@@ -473,9 +620,16 @@ function LinhaDoProjeto({
                     projeto.status
                   )}
                 `}
+
                 style={{
                   width:
-                    `${projeto.progress}%`,
+                    `${Math.min(
+                      Math.max(
+                        projeto.progress,
+                        0
+                      ),
+                      100
+                    )}%`,
                 }}
               />
 
@@ -488,9 +642,20 @@ function LinhaDoProjeto({
               ENTREGA ESTIMADA
               ================================================== */}
 
-          <div className="flex-shrink-0 lg:w-28">
+          <div
+            className="
+              flex-shrink-0
+              lg:w-28
+            "
+          >
 
-            <div className="flex items-center gap-1.5">
+            <div
+              className="
+                flex
+                items-center
+                gap-1.5
+              "
+            >
 
               <Calendar
                 className="
@@ -500,14 +665,27 @@ function LinhaDoProjeto({
                 "
               />
 
-              <span className="text-[11px] text-gray-400">
+
+              <span
+                className="
+                  text-[11px]
+                  text-gray-400
+                "
+              >
                 Entrega estimada
               </span>
 
             </div>
 
 
-            <p className="mt-0.5 text-sm font-medium text-gray-700">
+            <p
+              className="
+                mt-0.5
+                text-sm
+                font-medium
+                text-gray-700
+              "
+            >
               {projeto.deliveryDate}
             </p>
 
@@ -518,9 +696,20 @@ function LinhaDoProjeto({
               RESPONSÁVEL
               ================================================== */}
 
-          <div className="flex-shrink-0 lg:w-28">
+          <div
+            className="
+              flex-shrink-0
+              lg:w-28
+            "
+          >
 
-            <div className="flex items-center gap-1.5">
+            <div
+              className="
+                flex
+                items-center
+                gap-1.5
+              "
+            >
 
               <User
                 className="
@@ -530,14 +719,27 @@ function LinhaDoProjeto({
                 "
               />
 
-              <span className="text-[11px] text-gray-400">
+
+              <span
+                className="
+                  text-[11px]
+                  text-gray-400
+                "
+              >
                 Responsável
               </span>
 
             </div>
 
 
-            <p className="mt-0.5 text-sm font-medium text-gray-700">
+            <p
+              className="
+                mt-0.5
+                text-sm
+                font-medium
+                text-gray-700
+              "
+            >
               {projeto.responsible}
             </p>
 
@@ -559,14 +761,20 @@ function LinhaDoProjeto({
           >
 
 
-            {/* VER DETALHES */}
+            {/* ================================================
+                VER DETALHES
+                ================================================ */}
 
             <button
+              type="button"
+
               onClick={() =>
-                aoAbrirDetalhes(
-                  projeto
+                aoAbrirProjeto(
+                  projeto,
+                  'informacoes'
                 )
               }
+
               className="
                 flex
                 items-center
@@ -593,14 +801,20 @@ function LinhaDoProjeto({
             </button>
 
 
-            {/* KANBAN */}
+            {/* ================================================
+                KANBAN
+                ================================================ */}
 
             <button
+              type="button"
+
               onClick={() =>
-                aoAbrirKanban(
-                  projeto
+                aoAbrirProjeto(
+                  projeto,
+                  'kanban'
                 )
               }
+
               className="
                 flex
                 items-center
@@ -618,6 +832,7 @@ function LinhaDoProjeto({
                 hover:border-institution-200
                 hover:bg-institution-50
               "
+
               title="Abrir Kanban deste projeto"
             >
 
@@ -628,12 +843,17 @@ function LinhaDoProjeto({
             </button>
 
 
-            {/* EXPANDIR TAREFAS */}
+            {/* ================================================
+                EXPANDIR TAREFAS
+                ================================================ */}
 
             <button
+              type="button"
+
               onClick={
                 alternarTarefas
               }
+
               className="
                 flex
                 h-9
@@ -648,6 +868,7 @@ function LinhaDoProjeto({
                 hover:border-institution-200
                 hover:bg-institution-50
               "
+
               title={
                 estaExpandido
                   ? 'Recolher tarefas'
@@ -656,9 +877,13 @@ function LinhaDoProjeto({
             >
 
               {estaExpandido ? (
+
                 <Minus className="h-4 w-4" />
+
               ) : (
+
                 <Plus className="h-4 w-4" />
+
               )}
 
             </button>
@@ -687,7 +912,9 @@ function LinhaDoProjeto({
         >
 
 
-          {/* CABEÇALHO */}
+          {/* ==================================================
+              CABEÇALHO
+              ================================================== */}
 
           <div
             className="
@@ -698,7 +925,13 @@ function LinhaDoProjeto({
             "
           >
 
-            <div className="flex items-center gap-2">
+            <div
+              className="
+                flex
+                items-center
+                gap-2
+              "
+            >
 
               <ListChecks
                 className="
@@ -707,6 +940,7 @@ function LinhaDoProjeto({
                   text-institution-600
                 "
               />
+
 
               <h4
                 className="
@@ -721,7 +955,12 @@ function LinhaDoProjeto({
             </div>
 
 
-            <span className="text-xs text-gray-400">
+            <span
+              className="
+                text-xs
+                text-gray-400
+              "
+            >
 
               {projeto.tasks?.length ?? 0}{' '}
 
@@ -734,7 +973,9 @@ function LinhaDoProjeto({
           </div>
 
 
-          {/* TAREFAS */}
+          {/* ==================================================
+              TAREFAS
+              ================================================== */}
 
           {projeto.tasks &&
           projeto.tasks.length > 0 ? (
@@ -757,6 +998,7 @@ function LinhaDoProjeto({
                       key={
                         tarefa.id
                       }
+
                       className={`
                         rounded-lg
                         border
@@ -780,7 +1022,9 @@ function LinhaDoProjeto({
                       >
 
 
-                        {/* NÚMERO */}
+                        {/* ====================================
+                            NÚMERO
+                            ==================================== */}
 
                         <div
                           className="
@@ -801,22 +1045,48 @@ function LinhaDoProjeto({
                         </div>
 
 
-                        {/* NOME */}
+                        {/* ====================================
+                            NOME
+                            ==================================== */}
 
-                        <div className="min-w-0 flex-1">
+                        <div
+                          className="
+                            min-w-0
+                            flex-1
+                          "
+                        >
 
-                          <p className="text-sm font-medium text-gray-700">
+                          <p
+                            className="
+                              text-sm
+                              font-medium
+                              text-gray-700
+                            "
+                          >
                             {tarefa.title}
                           </p>
 
                         </div>
 
 
-                        {/* STATUS */}
+                        {/* ====================================
+                            STATUS
+                            ==================================== */}
 
-                        <div className="flex-shrink-0 md:w-32">
+                        <div
+                          className="
+                            flex-shrink-0
+                            md:w-32
+                          "
+                        >
 
-                          <div className="flex items-center gap-1.5">
+                          <div
+                            className="
+                              flex
+                              items-center
+                              gap-1.5
+                            "
+                          >
 
                             <span
                               className={`
@@ -827,6 +1097,7 @@ function LinhaDoProjeto({
                                 ${statusTarefa.ponto}
                               `}
                             />
+
 
                             <span
                               className={`
@@ -845,9 +1116,16 @@ function LinhaDoProjeto({
                         </div>
 
 
-                        {/* PROGRESSO */}
+                        {/* ====================================
+                            PROGRESSO
+                            ==================================== */}
 
-                        <div className="flex-shrink-0 md:w-32">
+                        <div
+                          className="
+                            flex-shrink-0
+                            md:w-32
+                          "
+                        >
 
                           <div
                             className="
@@ -857,11 +1135,23 @@ function LinhaDoProjeto({
                             "
                           >
 
-                            <span className="text-[10px] text-gray-400">
+                            <span
+                              className="
+                                text-[10px]
+                                text-gray-400
+                              "
+                            >
                               Progresso
                             </span>
 
-                            <span className="text-[10px] font-bold text-gray-600">
+
+                            <span
+                              className="
+                                text-[10px]
+                                font-bold
+                                text-gray-600
+                              "
+                            >
                               {tarefa.progress}%
                             </span>
 
@@ -886,9 +1176,16 @@ function LinhaDoProjeto({
                                   tarefa.status
                                 )}
                               `}
+
                               style={{
                                 width:
-                                  `${tarefa.progress}%`,
+                                  `${Math.min(
+                                    Math.max(
+                                      tarefa.progress,
+                                      0
+                                    ),
+                                    100
+                                  )}%`,
                               }}
                             />
 
@@ -897,31 +1194,56 @@ function LinhaDoProjeto({
                         </div>
 
 
-                        {/* RESPONSÁVEL */}
+                        {/* ====================================
+                            RESPONSÁVEL
+                            ==================================== */}
 
-                        <div className="flex-shrink-0 md:w-32">
+                        <div
+                          className="
+                            flex-shrink-0
+                            md:w-32
+                          "
+                        >
 
-                          <p className="text-[10px] text-gray-400">
+                          <p
+                            className="
+                              text-[10px]
+                              text-gray-400
+                            "
+                          >
                             Responsável
                           </p>
 
-                          <p className="text-xs font-medium text-gray-600">
+
+                          <p
+                            className="
+                              text-xs
+                              font-medium
+                              text-gray-600
+                            "
+                          >
                             {tarefa.responsible}
                           </p>
 
                         </div>
 
 
-                        {/* DETALHES */}
+                        {/* ====================================
+                            VER AÇÃO
+                            ==================================== */}
 
                         <div className="flex-shrink-0">
 
                           <button
+                            type="button"
+
                             onClick={() =>
-                              aoAbrirDetalhes(
-                                projeto
+                              aoAbrirProjeto(
+                                projeto,
+                                'acoes'
                               )
                             }
+
                             className="
                               flex
                               items-center
@@ -983,11 +1305,25 @@ function LinhaDoProjeto({
                 "
               />
 
-              <p className="text-sm font-medium text-gray-500">
+
+              <p
+                className="
+                  text-sm
+                  font-medium
+                  text-gray-500
+                "
+              >
                 Nenhuma tarefa cadastrada.
               </p>
 
-              <p className="mt-1 text-xs text-gray-400">
+
+              <p
+                className="
+                  mt-1
+                  text-xs
+                  text-gray-400
+                "
+              >
                 Este projeto ainda não possui tarefas vinculadas.
               </p>
 
@@ -1000,6 +1336,7 @@ function LinhaDoProjeto({
       )}
 
     </div>
+
   );
 }
 
@@ -1013,95 +1350,36 @@ export default function ProjectList({
   title: titulo,
   badge: quantidade,
   showAccess: mostrarAcesso,
-  aoAtualizarProjeto,
+  aoAbrirProjeto,
 }: ListaDeProjetosProps) {
 
 
   /* ==========================================================
-     PROJETO SELECIONADO
+     ABRIR PROJETO PELO APP
      ========================================================== */
 
-  const [
-    projetoSelecionado,
-    setProjetoSelecionado,
-  ] = useState<Project | null>(
-    null
-  );
-
-
-  /* ==========================================================
-     SEÇÃO INICIAL DO MODAL
-     ========================================================== */
-
-  const [
-    secaoInicialDoModal,
-    setSecaoInicialDoModal,
-  ] = useState<
-    'informacoes' | 'kanban'
-  >('informacoes');
-
-
-  /* ==========================================================
-     ABRIR DETALHES
-     ========================================================== */
-
-  function abrirDetalhes(
-    projeto: Project
+  function abrirProjeto(
+    projeto: Project,
+    secao: SecaoDetalhesProjeto
   ) {
 
-    setSecaoInicialDoModal(
-      'informacoes'
-    );
+    /*
+     * O App.tsx é o responsável pelo modal global.
+     *
+     * Esse fallback existe somente para evitar erro caso o
+     * componente seja utilizado sem a função em outro lugar.
+     */
 
-    setProjetoSelecionado(
-      projeto
-    );
+    if (!aoAbrirProjeto) {
 
-  }
+      return;
 
-
-  /* ==========================================================
-     ABRIR KANBAN
-     ========================================================== */
-
-  function abrirKanban(
-    projeto: Project
-  ) {
-
-    setSecaoInicialDoModal(
-      'kanban'
-    );
-
-    setProjetoSelecionado(
-      projeto
-    );
-
-  }
+    }
 
 
-  /* ==========================================================
-     ATUALIZAR PROJETO
-     ==========================================================
-
-     O modal altera o projeto e envia o novo objeto para cá.
-
-     Atualizamos também o projetoSelecionado para que o modal
-     reflita imediatamente a alteração sem precisar ser fechado.
-
-     Depois repassamos a alteração para o App.tsx.
-     ========================================================== */
-
-  function atualizarProjeto(
-    projetoAtualizado: Project
-  ) {
-
-    setProjetoSelecionado(
-      projetoAtualizado
-    );
-
-
-    aoAtualizarProjeto?.(
-      projetoAtualizado
+    aoAbrirProjeto(
+      projeto,
+      secao
     );
 
   }
@@ -1131,9 +1409,21 @@ export default function ProjectList({
         "
       >
 
-        <div className="flex items-center gap-3">
+        <div
+          className="
+            flex
+            items-center
+            gap-3
+          "
+        >
 
-          <h2 className="text-lg font-semibold text-gray-800">
+          <h2
+            className="
+              text-lg
+              font-semibold
+              text-gray-800
+            "
+          >
             {titulo}
           </h2>
 
@@ -1163,9 +1453,20 @@ export default function ProjectList({
             ORDENAÇÃO
             ==================================================== */}
 
-        <div className="flex items-center gap-2">
+        <div
+          className="
+            flex
+            items-center
+            gap-2
+          "
+        >
 
-          <label className="text-sm text-gray-500">
+          <label
+            className="
+              text-sm
+              text-gray-500
+            "
+          >
             Ordenar por:
           </label>
 
@@ -1225,7 +1526,6 @@ export default function ProjectList({
             ) => (
 
               <LinhaDoProjeto
-
                 key={
                   projeto.id
                 }
@@ -1242,14 +1542,9 @@ export default function ProjectList({
                   mostrarAcesso
                 }
 
-                aoAbrirDetalhes={
-                  abrirDetalhes
+                aoAbrirProjeto={
+                  abrirProjeto
                 }
-
-                aoAbrirKanban={
-                  abrirKanban
-                }
-
               />
 
             )
@@ -1269,11 +1564,24 @@ export default function ProjectList({
             "
           >
 
-            <p className="text-sm font-medium text-gray-600">
+            <p
+              className="
+                text-sm
+                font-medium
+                text-gray-600
+              "
+            >
               Nenhum projeto encontrado.
             </p>
 
-            <p className="mt-1 text-xs text-gray-400">
+
+            <p
+              className="
+                mt-1
+                text-xs
+                text-gray-400
+              "
+            >
               Altere ou limpe os filtros para visualizar outros projetos.
             </p>
 
@@ -1283,37 +1591,7 @@ export default function ProjectList({
 
       </div>
 
-
-      {/* ======================================================
-          MODAL DE DETALHES / KANBAN
-          ====================================================== */}
-
-      {projetoSelecionado && (
-
-        <ProjectDetailsModal
-
-          projeto={
-            projetoSelecionado
-          }
-
-          secaoInicial={
-            secaoInicialDoModal
-          }
-
-          aoFechar={() =>
-            setProjetoSelecionado(
-              null
-            )
-          }
-
-          aoAtualizarProjeto={
-            atualizarProjeto
-          }
-
-        />
-
-      )}
-
     </section>
+
   );
 }

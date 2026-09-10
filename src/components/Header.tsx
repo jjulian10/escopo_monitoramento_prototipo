@@ -7,9 +7,8 @@ import {
   Bell,
 } from 'lucide-react';
 
-import {
-  projects,
-  sharedProjects,
+import type {
+  Project,
 } from '@/data/projects';
 
 import {
@@ -21,10 +20,26 @@ import NotificationPanel from '@/components/notifications/NotificationPanel';
 
 
 /* ============================================================
+   PROPRIEDADES
+   ============================================================ */
+
+interface HeaderProps {
+  projetos: Project[];
+
+  aoSelecionarAlerta: (
+    alerta: AlertaPrazo
+  ) => void;
+}
+
+
+/* ============================================================
    COMPONENTE PRINCIPAL
    ============================================================ */
 
-export default function Header() {
+export default function Header({
+  projetos,
+  aoSelecionarAlerta,
+}: HeaderProps) {
 
 
   /* ==========================================================
@@ -38,31 +53,28 @@ export default function Header() {
 
 
   /* ==========================================================
-     TODOS OS PROJETOS DISPONÍVEIS
-     ========================================================== */
-
-  const todosOsProjetos =
-    useMemo(
-      () => [
-        ...projects,
-        ...sharedProjects,
-      ],
-      []
-    );
-
-
-  /* ==========================================================
      GERAR ALERTAS
+     ==========================================================
+
+     Agora os alertas são gerados utilizando os projetos
+     recebidos pelo App.tsx.
+
+     Isso é importante porque:
+
+     - projetos criados aparecem nas notificações;
+     - projetos alterados aparecem atualizados;
+     - mudanças no Kanban refletem nos alertas;
+     - não ficamos presos aos dados iniciais do projects.ts.
      ========================================================== */
 
   const alertas =
     useMemo(
       () =>
         gerarAlertasDePrazo(
-          todosOsProjetos
+          projetos
         ),
       [
-        todosOsProjetos,
+        projetos,
       ]
     );
 
@@ -77,30 +89,40 @@ export default function Header() {
 
   /* ==========================================================
      SELECIONAR ALERTA
-     ==========================================================
-     
-     Por enquanto apenas fechamos o painel.
-     
-     Depois vamos fazer o alerta abrir diretamente:
-     
-     - o projeto;
-     - a tarefa;
-     - ou a subtarefa correspondente.
-     
      ========================================================== */
 
   function selecionarAlerta(
     alerta: AlertaPrazo
   ) {
 
-    console.log(
-      'Alerta selecionado:',
-      alerta
-    );
 
+    /* --------------------------------------------------------
+       FECHA O PAINEL
+       -------------------------------------------------------- */
 
     setNotificacoesAbertas(
       false
+    );
+
+
+    /* --------------------------------------------------------
+       ENTREGA O ALERTA PARA O APP.TSX
+       --------------------------------------------------------
+
+       O App.tsx ficará responsável por:
+
+       Projeto
+       → abrir Informações
+
+       Tarefa
+       → abrir Ações do Projeto
+
+       Subtarefa
+       → abrir Kanban
+       -------------------------------------------------------- */
+
+    aoSelecionarAlerta(
+      alerta
     );
 
   }
@@ -164,12 +186,10 @@ export default function Header() {
 
               ${
                 notificacoesAbertas
-
                   ? `
                     bg-institution-50
                     text-institution-700
                   `
-
                   : `
                     text-gray-500
                     hover:bg-gray-100
@@ -185,7 +205,7 @@ export default function Header() {
 
 
             {/* ================================================
-                CONTADOR
+                CONTADOR DE ALERTAS
                 ================================================ */}
 
             {quantidadeDeAlertas > 0 && (
