@@ -6,11 +6,14 @@ import {
 
 import {
   DndContext,
+  DragOverlay,
   PointerSensor,
   closestCorners,
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragOverEvent,
+  type DragStartEvent,
 } from '@dnd-kit/core';
 
 import {
@@ -31,6 +34,8 @@ import type {
 } from '@/data/projects';
 
 import ProjectKanbanColumn from './ProjectKanbanColumn';
+
+import ProjectKanbanCard from './ProjectKanbanCard';
 
 
 /* ============================================================
@@ -63,7 +68,7 @@ const statusDasColunas: StatusType[] = [
 
 
 /* ============================================================
-   VERIFICAR SE É STATUS DE PROJETO
+   VERIFICAR SE É STATUS
    ============================================================ */
 
 function ehStatusDoProjeto(
@@ -98,7 +103,7 @@ function normalizarTexto(
 
 
 /* ============================================================
-   VERIFICAR SE TAREFA ESTÁ CONCLUÍDA
+   VERIFICAR TAREFA CONCLUÍDA
    ============================================================ */
 
 function tarefaEstaConcluida(
@@ -138,7 +143,7 @@ function tarefaEstaConcluida(
 
 
 /* ============================================================
-   VERIFICAR SE PROJETO PODE SER CONCLUÍDO
+   PROJETO PODE SER CONCLUÍDO
    ============================================================ */
 
 export function projetoPodeSerConcluido(
@@ -149,10 +154,6 @@ export function projetoPodeSerConcluido(
     projeto.tasks ?? [];
 
 
-  /*
-   * Um projeto sem tarefas não será
-   * concluído automaticamente.
-   */
   if (
     tarefas.length === 0
   ) {
@@ -170,7 +171,7 @@ export function projetoPodeSerConcluido(
 
 
 /* ============================================================
-   PENDÊNCIAS DO PROJETO
+   PENDÊNCIAS
    ============================================================ */
 
 export function obterPendenciasDoProjeto(
@@ -221,16 +222,7 @@ export function obterPendenciasDoProjeto(
 
 
 /* ============================================================
-   ENCONTRAR STATUS DO DESTINO
-   ============================================================
-
-   O usuário pode soltar o projeto:
-
-   1. diretamente na coluna;
-   2. em cima de outro projeto.
-
-   Se for outro projeto, utilizamos o status
-   daquele projeto como destino.
+   STATUS DO DESTINO
    ============================================================ */
 
 function encontrarStatusDoDestino(
@@ -287,7 +279,43 @@ export default function GlobalProjectKanban({
 
 
   /* ==========================================================
-     TENTATIVA DE CONCLUSÃO MANUAL
+     PROJETO ATIVO NO DRAG
+     ========================================================== */
+
+  const [
+    projetoAtivo,
+    setProjetoAtivo,
+  ] = useState<Project | null>(
+    null
+  );
+
+
+  /* ==========================================================
+     STATUS ORIGINAL
+     ========================================================== */
+
+  const [
+    statusOriginal,
+    setStatusOriginal,
+  ] = useState<StatusType | null>(
+    null
+  );
+
+
+  /* ==========================================================
+     SNAPSHOT PARA CANCELAMENTO
+     ========================================================== */
+
+  const [
+    projetoAntesDoArraste,
+    setProjetoAntesDoArraste,
+  ] = useState<Project | null>(
+    null
+  );
+
+
+  /* ==========================================================
+     BLOQUEIO DE CONCLUSÃO
      ========================================================== */
 
   const [
@@ -299,7 +327,7 @@ export default function GlobalProjectKanban({
 
 
   /* ==========================================================
-     SENSORES DO DRAG
+     SENSORES
      ========================================================== */
 
   const sensores =
@@ -320,15 +348,6 @@ export default function GlobalProjectKanban({
 
   /* ==========================================================
      CONCLUSÃO AUTOMÁTICA
-     ==========================================================
-
-     O projeto vai para "Concluído" automaticamente quando:
-
-     - possui pelo menos uma tarefa;
-     - todas as tarefas estão concluídas;
-     - todas as subtarefas existentes estão concluídas.
-
-     O usuário NÃO precisa mover manualmente.
      ========================================================== */
 
   useEffect(
@@ -430,11 +449,55 @@ export default function GlobalProjectKanban({
 
 
   /* ==========================================================
-     FINALIZAR ARRASTE
+     INICIAR ARRASTE
      ========================================================== */
 
-  function finalizarArraste(
-    evento: DragEndEvent
+  function iniciarArraste(
+    evento: DragStartEvent
+  ) {
+
+    const id =
+      String(
+        evento.active.id
+      );
+
+
+    const projeto =
+      projetos.find(
+        (item) =>
+          item.id ===
+          id
+      );
+
+
+    if (!projeto) {
+      return;
+    }
+
+
+    setProjetoAtivo(
+      projeto
+    );
+
+
+    setStatusOriginal(
+      projeto.status
+    );
+
+
+    setProjetoAntesDoArraste(
+      projeto
+    );
+
+  }
+
+
+  /* ==========================================================
+     DURANTE ARRASTE
+     ========================================================== */
+
+  function duranteArraste(
+    evento: DragOverEvent
   ) {
 
     const {
@@ -442,10 +505,6 @@ export default function GlobalProjectKanban({
       over,
     } = evento;
 
-
-    /* --------------------------------------------------------
-       SOLTOU FORA DE UMA COLUNA
-       -------------------------------------------------------- */
 
     if (!over) {
       return;
@@ -464,11 +523,7 @@ export default function GlobalProjectKanban({
       );
 
 
-    /* --------------------------------------------------------
-       LOCALIZA O PROJETO
-       -------------------------------------------------------- */
-
-    const projeto =
+    const projetoAtual =
       projetos.find(
         (item) =>
           item.id ===
@@ -476,14 +531,10 @@ export default function GlobalProjectKanban({
       );
 
 
-    if (!projeto) {
+    if (!projetoAtual) {
       return;
     }
 
-
-    /* --------------------------------------------------------
-       DESCOBRE O STATUS DO DESTINO
-       -------------------------------------------------------- */
 
     const novoStatus =
       encontrarStatusDoDestino(
@@ -498,11 +549,39 @@ export default function GlobalProjectKanban({
 
 
     /* --------------------------------------------------------
-       MESMO STATUS
+       CONCLUÍDO NÃO MUDA DURANTE DRAG
        -------------------------------------------------------- */
 
     if (
-      projeto.status ===
+      novoStatus ===
+      'Concluído'
+    ) {
+
+      return;
+
+    }
+
+
+    /* --------------------------------------------------------
+       PROJETO JÁ CONCLUÍDO NÃO MOVE
+       -------------------------------------------------------- */
+
+    if (
+      projetoAtual.status ===
+      'Concluído'
+    ) {
+
+      return;
+
+    }
+
+
+    /* --------------------------------------------------------
+       JÁ ESTÁ NO STATUS
+       -------------------------------------------------------- */
+
+    if (
+      projetoAtual.status ===
       novoStatus
     ) {
 
@@ -511,23 +590,151 @@ export default function GlobalProjectKanban({
     }
 
 
+    /* --------------------------------------------------------
+       ATUALIZA VISUALMENTE
+       -------------------------------------------------------- */
+
+    const projetoAtualizado:
+      Project = {
+
+      ...projetoAtual,
+
+      status:
+        novoStatus,
+
+    };
+
+
+    aoAtualizarProjeto(
+      projetoAtualizado
+    );
+
+  }
+
+
+  /* ==========================================================
+     FINALIZAR ARRASTE
+     ========================================================== */
+
+  function finalizarArraste(
+    evento: DragEndEvent
+  ) {
+
+    const {
+      active,
+      over,
+    } = evento;
+
+
+    const projetoInicial =
+      projetoAtivo;
+
+
+    const statusInicial =
+      statusOriginal;
+
+
+    setProjetoAtivo(
+      null
+    );
+
+
+    setStatusOriginal(
+      null
+    );
+
+
+    /* --------------------------------------------------------
+       SOLTOU FORA
+       -------------------------------------------------------- */
+
+    if (!over) {
+
+      if (
+        projetoAntesDoArraste
+      ) {
+
+        aoAtualizarProjeto(
+          projetoAntesDoArraste
+        );
+
+      }
+
+
+      setProjetoAntesDoArraste(
+        null
+      );
+
+
+      return;
+
+    }
+
+
+    const projetoId =
+      String(
+        active.id
+      );
+
+
+    const destinoId =
+      String(
+        over.id
+      );
+
+
+    const statusFinal =
+      encontrarStatusDoDestino(
+        destinoId,
+        projetos
+      );
+
+
+    if (
+      !projetoInicial ||
+      !statusInicial ||
+      !statusFinal
+    ) {
+
+      setProjetoAntesDoArraste(
+        null
+      );
+
+      return;
+
+    }
+
+
     /* ========================================================
-       BLOQUEAR CONCLUSÃO MANUAL
+       TENTATIVA DE CONCLUIR MANUALMENTE
        ======================================================== */
 
     if (
-      novoStatus ===
+      statusFinal ===
       'Concluído'
     ) {
 
       /*
-       * Mesmo que todas as tarefas já estejam concluídas,
-       * a conclusão deve acontecer automaticamente pelo
-       * useEffect e não pelo movimento manual.
+       * Restaura o projeto ao estado anterior.
        */
+      if (
+        projetoAntesDoArraste
+      ) {
+
+        aoAtualizarProjeto(
+          projetoAntesDoArraste
+        );
+
+      }
+
 
       setProjetoBloqueado(
-        projeto
+        projetoInicial
+      );
+
+
+      setProjetoAntesDoArraste(
+        null
       );
 
 
@@ -537,13 +744,18 @@ export default function GlobalProjectKanban({
 
 
     /* ========================================================
-       PROJETO CONCLUÍDO NÃO PODE VOLTAR
+       SEM ALTERAÇÃO
        ======================================================== */
 
     if (
-      projeto.status ===
-      'Concluído'
+      statusInicial ===
+      statusFinal
     ) {
+
+      setProjetoAntesDoArraste(
+        null
+      );
+
 
       return;
 
@@ -551,26 +763,46 @@ export default function GlobalProjectKanban({
 
 
     /* ========================================================
-       ATUALIZAÇÃO DO STATUS
+       LOCALIZA ESTADO FINAL
        ======================================================== */
 
-    const statusAnterior =
-      projeto.status;
+    const projetoFinal =
+      projetos.find(
+        (item) =>
+          item.id ===
+          projetoId
+      );
 
 
-    const projetoAtualizado:
+    if (!projetoFinal) {
+
+      setProjetoAntesDoArraste(
+        null
+      );
+
+
+      return;
+
+    }
+
+
+    /* ========================================================
+       REGISTRA HISTÓRICO
+       ======================================================== */
+
+    const projetoComHistorico:
       Project = {
 
-      ...projeto,
+      ...projetoFinal,
 
       status:
-        novoStatus,
+        statusFinal,
 
       history: [
 
         {
           id:
-            `history-project-status-${Date.now()}-${projeto.id}`,
+            `history-project-status-${Date.now()}-${projetoFinal.id}`,
 
           type:
             'status_changed',
@@ -579,10 +811,10 @@ export default function GlobalProjectKanban({
             'Status do projeto alterado',
 
           description:
-            `O projeto ${projeto.code} — ${projeto.title} foi alterado de "${statusAnterior}" para "${novoStatus}".`,
+            `O projeto ${projetoFinal.code} — ${projetoFinal.title} foi alterado de "${statusInicial}" para "${statusFinal}".`,
 
           user:
-            projeto.responsible,
+            projetoFinal.responsible,
 
           createdAt:
             new Date()
@@ -591,17 +823,17 @@ export default function GlobalProjectKanban({
           metadata: {
 
             previousValue:
-              statusAnterior,
+              statusInicial,
 
             newValue:
-              novoStatus,
+              statusFinal,
 
           },
 
         },
 
         ...(
-          projeto.history ??
+          projetoFinal.history ??
           []
         ),
 
@@ -610,12 +842,47 @@ export default function GlobalProjectKanban({
     };
 
 
-    /* ========================================================
-       ENVIA PARA O APP
-       ======================================================== */
-
     aoAtualizarProjeto(
-      projetoAtualizado
+      projetoComHistorico
+    );
+
+
+    setProjetoAntesDoArraste(
+      null
+    );
+
+  }
+
+
+  /* ==========================================================
+     CANCELAR ARRASTE
+     ========================================================== */
+
+  function cancelarArraste() {
+
+    if (
+      projetoAntesDoArraste
+    ) {
+
+      aoAtualizarProjeto(
+        projetoAntesDoArraste
+      );
+
+    }
+
+
+    setProjetoAtivo(
+      null
+    );
+
+
+    setStatusOriginal(
+      null
+    );
+
+
+    setProjetoAntesDoArraste(
+      null
     );
 
   }
@@ -645,7 +912,6 @@ export default function GlobalProjectKanban({
         return projetos.filter(
           (projeto) => {
 
-
             const conteudo =
               normalizarTexto(
                 [
@@ -674,7 +940,7 @@ export default function GlobalProjectKanban({
 
 
   /* ==========================================================
-     RESUMO
+     CONTADORES
      ========================================================== */
 
   const totalDeProjetos =
@@ -714,7 +980,7 @@ export default function GlobalProjectKanban({
 
 
   /* ==========================================================
-     PENDÊNCIAS DO PROJETO BLOQUEADO
+     PENDÊNCIAS DO BLOQUEADO
      ========================================================== */
 
   const pendenciasDoProjeto =
@@ -744,8 +1010,20 @@ export default function GlobalProjectKanban({
           closestCorners
         }
 
+        onDragStart={
+          iniciarArraste
+        }
+
+        onDragOver={
+          duranteArraste
+        }
+
         onDragEnd={
           finalizarArraste
+        }
+
+        onDragCancel={
+          cancelarArraste
         }
       >
 
@@ -825,10 +1103,6 @@ export default function GlobalProjectKanban({
 
             </div>
 
-
-            {/* ================================================
-                TOTAL
-                ================================================ */}
 
             <div
               className="
@@ -1038,7 +1312,7 @@ export default function GlobalProjectKanban({
 
 
           {/* ==================================================
-              RESUMO DOS STATUS
+              RESUMO
               ================================================== */}
 
           <div
@@ -1050,8 +1324,6 @@ export default function GlobalProjectKanban({
             "
           >
 
-            {/* EM ANDAMENTO */}
-
             <div
               className="
                 rounded-xl
@@ -1062,35 +1334,15 @@ export default function GlobalProjectKanban({
                 py-3
               "
             >
-
-              <p
-                className="
-                  text-[10px]
-                  font-semibold
-                  uppercase
-                  tracking-wide
-                  text-blue-500
-                "
-              >
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-blue-500">
                 Em andamento
               </p>
 
-
-              <p
-                className="
-                  mt-1
-                  text-xl
-                  font-bold
-                  text-blue-700
-                "
-              >
+              <p className="mt-1 text-xl font-bold text-blue-700">
                 {totalEmAndamento}
               </p>
-
             </div>
 
-
-            {/* ATRASADOS */}
 
             <div
               className="
@@ -1102,35 +1354,15 @@ export default function GlobalProjectKanban({
                 py-3
               "
             >
-
-              <p
-                className="
-                  text-[10px]
-                  font-semibold
-                  uppercase
-                  tracking-wide
-                  text-red-500
-                "
-              >
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-red-500">
                 Atrasados
               </p>
 
-
-              <p
-                className="
-                  mt-1
-                  text-xl
-                  font-bold
-                  text-red-700
-                "
-              >
+              <p className="mt-1 text-xl font-bold text-red-700">
                 {totalAtrasados}
               </p>
-
             </div>
 
-
-            {/* PAUSADOS */}
 
             <div
               className="
@@ -1142,35 +1374,15 @@ export default function GlobalProjectKanban({
                 py-3
               "
             >
-
-              <p
-                className="
-                  text-[10px]
-                  font-semibold
-                  uppercase
-                  tracking-wide
-                  text-slate-500
-                "
-              >
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                 Pausados
               </p>
 
-
-              <p
-                className="
-                  mt-1
-                  text-xl
-                  font-bold
-                  text-slate-700
-                "
-              >
+              <p className="mt-1 text-xl font-bold text-slate-700">
                 {totalPausados}
               </p>
-
             </div>
 
-
-            {/* CONCLUÍDOS */}
 
             <div
               className="
@@ -1182,31 +1394,13 @@ export default function GlobalProjectKanban({
                 py-3
               "
             >
-
-              <p
-                className="
-                  text-[10px]
-                  font-semibold
-                  uppercase
-                  tracking-wide
-                  text-green-500
-                "
-              >
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-green-500">
                 Concluídos
               </p>
 
-
-              <p
-                className="
-                  mt-1
-                  text-xl
-                  font-bold
-                  text-green-700
-                "
-              >
+              <p className="mt-1 text-xl font-bold text-green-700">
                 {totalConcluidos}
               </p>
-
             </div>
 
           </div>
@@ -1278,10 +1472,6 @@ export default function GlobalProjectKanban({
 
           ) : (
 
-            /* ================================================
-               PESQUISA SEM RESULTADO
-               ================================================ */
-
             <div
               className="
                 rounded-2xl
@@ -1304,26 +1494,11 @@ export default function GlobalProjectKanban({
                 "
               />
 
-
-              <p
-                className="
-                  mt-3
-                  text-sm
-                  font-semibold
-                  text-gray-600
-                "
-              >
+              <p className="mt-3 text-sm font-semibold text-gray-600">
                 Nenhum projeto encontrado
               </p>
 
-
-              <p
-                className="
-                  mt-1
-                  text-xs
-                  text-gray-400
-                "
-              >
+              <p className="mt-1 text-xs text-gray-400">
                 Tente pesquisar utilizando outro nome, código ou responsável.
               </p>
 
@@ -1333,6 +1508,52 @@ export default function GlobalProjectKanban({
 
         </div>
 
+
+        {/* ====================================================
+            CARD FLUTUANTE
+            ==================================================== */}
+
+        <DragOverlay
+          dropAnimation={{
+            duration:
+              180,
+
+            easing:
+              'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+          }}
+        >
+
+          {projetoAtivo ? (
+
+            <div
+              className="
+                w-[280px]
+                rotate-[1deg]
+                scale-[1.02]
+                cursor-grabbing
+                opacity-95
+                shadow-2xl
+              "
+            >
+
+              <ProjectKanbanCard
+                projeto={
+                  projetoAtivo
+                }
+
+                aoAbrirProjeto={() => {}}
+
+                permitirArrastar={
+                  false
+                }
+              />
+
+            </div>
+
+          ) : null}
+
+        </DragOverlay>
+
       </DndContext>
 
 
@@ -1341,6 +1562,7 @@ export default function GlobalProjectKanban({
           ====================================================== */}
 
       {projetoBloqueado && (
+
         <div
           className="
             fixed
@@ -1365,11 +1587,6 @@ export default function GlobalProjectKanban({
               shadow-2xl
             "
           >
-
-
-            {/* ================================================
-                CABEÇALHO
-                ================================================ */}
 
             <div
               className="
@@ -1407,27 +1624,14 @@ export default function GlobalProjectKanban({
               </div>
 
 
-              <div className="min-w-0">
+              <div>
 
-                <h2
-                  className="
-                    text-base
-                    font-semibold
-                    text-gray-800
-                  "
-                >
+                <h2 className="text-base font-semibold text-gray-800">
                   Conclusão automática
                 </h2>
 
 
-                <p
-                  className="
-                    mt-1
-                    text-sm
-                    leading-relaxed
-                    text-gray-500
-                  "
-                >
+                <p className="mt-1 text-sm text-gray-500">
                   O projeto não pode ser movido manualmente para Concluído.
                 </p>
 
@@ -1436,31 +1640,14 @@ export default function GlobalProjectKanban({
             </div>
 
 
-            {/* ================================================
-                CONTEÚDO
-                ================================================ */}
-
             <div className="px-6 py-5">
 
-              <p
-                className="
-                  text-xs
-                  font-semibold
-                  text-institution-600
-                "
-              >
+              <p className="text-xs font-semibold text-institution-600">
                 {projetoBloqueado.code}
               </p>
 
 
-              <p
-                className="
-                  mt-1
-                  text-sm
-                  font-semibold
-                  text-gray-800
-                "
-              >
+              <p className="mt-1 text-sm font-semibold text-gray-800">
                 {projetoBloqueado.title}
               </p>
 
@@ -1470,28 +1657,12 @@ export default function GlobalProjectKanban({
 
                 <>
 
-                  <p
-                    className="
-                      mt-4
-                      text-sm
-                      leading-relaxed
-                      text-gray-600
-                    "
-                  >
+                  <p className="mt-4 text-sm leading-relaxed text-gray-600">
                     Para concluir este projeto, finalize todas as tarefas e subtarefas pendentes.
                   </p>
 
 
-                  <div
-                    className="
-                      mt-4
-                      grid
-                      grid-cols-2
-                      gap-3
-                    "
-                  >
-
-                    {/* TAREFAS */}
+                  <div className="mt-4 grid grid-cols-2 gap-3">
 
                     <div
                       className="
@@ -1503,53 +1674,23 @@ export default function GlobalProjectKanban({
                       "
                     >
 
-                      <div
-                        className="
-                          flex
-                          items-center
-                          gap-2
-                        "
-                      >
+                      <div className="flex items-center gap-2">
 
-                        <ListChecks
-                          className="
-                            h-4
-                            w-4
-                            text-institution-600
-                          "
-                        />
+                        <ListChecks className="h-4 w-4 text-institution-600" />
 
-
-                        <span
-                          className="
-                            text-xs
-                            text-gray-500
-                          "
-                        >
+                        <span className="text-xs text-gray-500">
                           Tarefas pendentes
                         </span>
 
                       </div>
 
 
-                      <p
-                        className="
-                          mt-2
-                          text-2xl
-                          font-bold
-                          text-gray-800
-                        "
-                      >
-                        {
-                          pendenciasDoProjeto
-                            .tarefasPendentes
-                        }
+                      <p className="mt-2 text-2xl font-bold text-gray-800">
+                        {pendenciasDoProjeto.tarefasPendentes}
                       </p>
 
                     </div>
 
-
-                    {/* SUBTAREFAS */}
 
                     <div
                       className="
@@ -1561,47 +1702,19 @@ export default function GlobalProjectKanban({
                       "
                     >
 
-                      <div
-                        className="
-                          flex
-                          items-center
-                          gap-2
-                        "
-                      >
+                      <div className="flex items-center gap-2">
 
-                        <Layers3
-                          className="
-                            h-4
-                            w-4
-                            text-institution-600
-                          "
-                        />
+                        <Layers3 className="h-4 w-4 text-institution-600" />
 
-
-                        <span
-                          className="
-                            text-xs
-                            text-gray-500
-                          "
-                        >
+                        <span className="text-xs text-gray-500">
                           Subtarefas pendentes
                         </span>
 
                       </div>
 
 
-                      <p
-                        className="
-                          mt-2
-                          text-2xl
-                          font-bold
-                          text-gray-800
-                        "
-                      >
-                        {
-                          pendenciasDoProjeto
-                            .subtarefasPendentes
-                        }
+                      <p className="mt-2 text-2xl font-bold text-gray-800">
+                        {pendenciasDoProjeto.subtarefasPendentes}
                       </p>
 
                     </div>
@@ -1626,24 +1739,10 @@ export default function GlobalProjectKanban({
                   "
                 >
 
-                  <CheckCircle2
-                    className="
-                      mt-0.5
-                      h-5
-                      w-5
-                      flex-shrink-0
-                      text-green-600
-                    "
-                  />
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
 
 
-                  <p
-                    className="
-                      text-sm
-                      leading-relaxed
-                      text-green-700
-                    "
-                  >
+                  <p className="text-sm leading-relaxed text-green-700">
                     Todas as atividades estão concluídas. O sistema concluirá o projeto automaticamente.
                   </p>
 
@@ -1653,10 +1752,6 @@ export default function GlobalProjectKanban({
 
             </div>
 
-
-            {/* ================================================
-                RODAPÉ
-                ================================================ */}
 
             <div
               className="
@@ -1691,7 +1786,6 @@ export default function GlobalProjectKanban({
                   text-sm
                   font-medium
                   text-gray-600
-                  transition-colors
                   hover:bg-gray-50
                 "
               >
@@ -1728,9 +1822,7 @@ export default function GlobalProjectKanban({
                   font-medium
                   text-white
                   shadow-sm
-                  transition-all
                   hover:bg-institution-700
-                  hover:shadow-md
                 "
               >
                 Abrir projeto
@@ -1741,6 +1833,7 @@ export default function GlobalProjectKanban({
           </div>
 
         </div>
+
       )}
 
     </>
