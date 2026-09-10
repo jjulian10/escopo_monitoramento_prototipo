@@ -31,6 +31,10 @@ import ProjectDetailsModal from '@/components/project-details/ProjectDetailsModa
 
 import GlobalProjectKanban from '@/components/project-kanban/GlobalProjectKanban';
 
+import {
+  sincronizarExecucaoDoProjeto,
+} from '@/utils/projectProgress';
+
 
 /* ============================================================
    TIPOS
@@ -132,12 +136,18 @@ export default function App() {
      PROJETOS DO USUÁRIO
      ========================================================== */
 
-  const [
-    meusProjetos,
-    setMeusProjetos,
-  ] = useState<Project[]>(
-    projects
-  );
+     const [
+      meusProjetos,
+      setMeusProjetos,
+    ] = useState<Project[]>(
+      () =>
+        projects.map(
+          (projeto) =>
+            sincronizarExecucaoDoProjeto(
+              projeto
+            )
+        )
+    );
 
 
   /* ==========================================================
@@ -301,44 +311,58 @@ export default function App() {
      ATUALIZAR PROJETO
      ========================================================== */
 
-  function atualizarProjeto(
-    projetoAtualizado: Project
-  ) {
-
-    setMeusProjetos(
-      (projetosAtuais) =>
-
-        projetosAtuais.map(
-          (projeto) =>
-
-            projeto.id ===
-            projetoAtualizado.id
-
-              ? projetoAtualizado
-
-              : projeto
-
-        )
-    );
-
-
-    /*
-     * Se o projeto atualizado estiver aberto
-     * no modal, mantém o modal sincronizado.
-     */
-
-    setProjetoSelecionado(
-      (projetoAtual) =>
-
-        projetoAtual?.id ===
-        projetoAtualizado.id
-
-          ? projetoAtualizado
-
-          : projetoAtual
-    );
-
-  }
+     function atualizarProjeto(
+      projetoAtualizado: Project
+    ) {
+    
+    
+      /* ========================================================
+         SINCRONIZA PROGRESSO E CONCLUSÃO
+         ======================================================== */
+    
+      const projetoSincronizado =
+        sincronizarExecucaoDoProjeto(
+          projetoAtualizado
+        );
+    
+    
+      /* ========================================================
+         ATUALIZA LISTA PRINCIPAL
+         ======================================================== */
+    
+      setMeusProjetos(
+        (projetosAtuais) =>
+    
+          projetosAtuais.map(
+            (projeto) =>
+    
+              projeto.id ===
+              projetoSincronizado.id
+    
+                ? projetoSincronizado
+    
+                : projeto
+    
+          )
+      );
+    
+    
+      /* ========================================================
+         ATUALIZA MODAL ABERTO
+         ======================================================== */
+    
+      setProjetoSelecionado(
+        (projetoAtual) =>
+    
+          projetoAtual?.id ===
+          projetoSincronizado.id
+    
+            ? projetoSincronizado
+    
+            : projetoAtual
+      );
+    
+    }
 
 
   /* ==========================================================
