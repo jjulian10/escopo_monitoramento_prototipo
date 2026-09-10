@@ -29,6 +29,8 @@ import CreateProjectModal from '@/components/project-create/CreateProjectModal';
 
 import ProjectDetailsModal from '@/components/project-details/ProjectDetailsModal';
 
+import GlobalProjectKanban from '@/components/project-kanban/GlobalProjectKanban';
+
 
 /* ============================================================
    TIPOS
@@ -49,6 +51,10 @@ import type {
 import type {
   SecaoDetalhesProjeto,
 } from '@/components/project-details/ProjectDetailsSidebar';
+
+import type {
+  PaginaPrincipal,
+} from '@/components/Sidebar';
 
 
 /* ============================================================
@@ -98,6 +104,18 @@ const filtrosIniciais: DadosDosFiltros = {
    ============================================================ */
 
 export default function App() {
+
+
+  /* ==========================================================
+     PÁGINA PRINCIPAL
+     ========================================================== */
+
+  const [
+    paginaAtiva,
+    setPaginaAtiva,
+  ] = useState<PaginaPrincipal>(
+    'monitoramento'
+  );
 
 
   /* ==========================================================
@@ -157,7 +175,7 @@ export default function App() {
 
 
   /* ==========================================================
-     ABA ATIVA
+     ABA ATIVA DO MONITORAMENTO
      ========================================================== */
 
   const [
@@ -252,6 +270,16 @@ export default function App() {
     );
 
 
+    /*
+     * Após criar um projeto, retorna para
+     * a página principal de Monitoramento.
+     */
+
+    setPaginaAtiva(
+      'monitoramento'
+    );
+
+
     setAbaAtiva(
       'mine'
     );
@@ -294,9 +322,10 @@ export default function App() {
     );
 
 
-    /* --------------------------------------------------------
-       SE O PROJETO ESTIVER ABERTO, ATUALIZA TAMBÉM O MODAL
-       -------------------------------------------------------- */
+    /*
+     * Se o projeto atualizado estiver aberto
+     * no modal, mantém o modal sincronizado.
+     */
 
     setProjetoSelecionado(
       (projetoAtual) =>
@@ -335,6 +364,22 @@ export default function App() {
 
 
   /* ==========================================================
+     ABRIR PROJETO PELO KANBAN GLOBAL
+     ========================================================== */
+
+  function abrirProjetoDoKanban(
+    projeto: Project
+  ) {
+
+    abrirProjeto(
+      projeto,
+      'informacoes'
+    );
+
+  }
+
+
+  /* ==========================================================
      ABRIR ALERTA
      ========================================================== */
 
@@ -342,12 +387,8 @@ export default function App() {
     alerta: AlertaPrazo
   ) {
 
-
-    /* --------------------------------------------------------
-       PROCURA PRIMEIRO NOS MEUS PROJETOS
-       -------------------------------------------------------- */
-
     const projeto =
+
       meusProjetos.find(
         (item) =>
           item.id ===
@@ -367,7 +408,16 @@ export default function App() {
 
 
     /* --------------------------------------------------------
-       DEFINE A ABA DA TELA PRINCIPAL
+       RETORNA PARA MONITORAMENTO
+       -------------------------------------------------------- */
+
+    setPaginaAtiva(
+      'monitoramento'
+    );
+
+
+    /* --------------------------------------------------------
+       DEFINE A ABA
        -------------------------------------------------------- */
 
     const estaNosMeusProjetos =
@@ -386,7 +436,7 @@ export default function App() {
 
 
     /* --------------------------------------------------------
-       LIMPA FILTROS
+       LIMPA OS FILTROS
        -------------------------------------------------------- */
 
     setFiltrosAplicados(
@@ -395,17 +445,16 @@ export default function App() {
 
 
     /* --------------------------------------------------------
-       DEFINE QUAL ÁREA DO MODAL ABRIR
-       --------------------------------------------------------
+       DEFINE A SEÇÃO DO MODAL
 
        Projeto
        → Informações
 
        Tarefa
-       → Ações do Projeto
+       → Ações
 
        Subtarefa
-       → Kanban
+       → Kanban interno
        -------------------------------------------------------- */
 
     let secao:
@@ -461,6 +510,10 @@ export default function App() {
       (projeto) => {
 
 
+        /* -----------------------------------------------------
+           PROJETO
+           ----------------------------------------------------- */
+
         const correspondeAoProjeto =
 
           filtrosAplicados.projeto ===
@@ -470,6 +523,10 @@ export default function App() {
             filtrosAplicados.projeto;
 
 
+        /* -----------------------------------------------------
+           STATUS
+           ----------------------------------------------------- */
+
         const correspondeAoStatus =
 
           filtrosAplicados.status ===
@@ -478,6 +535,10 @@ export default function App() {
           projeto.status ===
             filtrosAplicados.status;
 
+
+        /* -----------------------------------------------------
+           RESPONSÁVEL
+           ----------------------------------------------------- */
 
         const nomeDoResponsavel =
 
@@ -501,6 +562,10 @@ export default function App() {
             responsavelPesquisado
           );
 
+
+        /* -----------------------------------------------------
+           RESULTADO
+           ----------------------------------------------------- */
 
         return (
 
@@ -565,6 +630,14 @@ export default function App() {
               !estadoAtual
           )
         }
+
+        paginaAtiva={
+          paginaAtiva
+        }
+
+        aoSelecionarPagina={
+          setPaginaAtiva
+        }
       />
 
 
@@ -607,257 +680,364 @@ export default function App() {
 
 
         {/* ====================================================
-            CONTEÚDO
+            MONITORAMENTO
             ==================================================== */}
 
-        <main
-          className="
-            flex-1
-            space-y-8
-            p-6
-            lg:p-8
-          "
-        >
+        {paginaAtiva ===
+          'monitoramento' && (
 
-
-          {/* ==================================================
-              TÍTULO
-              ================================================== */}
-
-          <div
+          <main
             className="
-              flex
-              flex-wrap
-              items-start
-              justify-between
-              gap-4
+              flex-1
+              space-y-8
+              p-6
+              lg:p-8
             "
           >
 
-            <div>
 
-              <div
-                className="
-                  flex
-                  items-center
-                  gap-3
-                "
-              >
+            {/* ================================================
+                TÍTULO
+                ================================================ */}
+
+            <div
+              className="
+                flex
+                flex-wrap
+                items-start
+                justify-between
+                gap-4
+              "
+            >
+
+              <div>
 
                 <div
                   className="
-                    h-8
-                    w-1.5
-                    rounded-full
-                    bg-institution-600
-                  "
-                />
-
-
-                <h1
-                  className="
-                    text-2xl
-                    font-bold
-                    tracking-tight
-                    text-gray-900
+                    flex
+                    items-center
+                    gap-3
                   "
                 >
-                  Monitoramento de Projetos
-                </h1>
+
+                  <div
+                    className="
+                      h-8
+                      w-1.5
+                      rounded-full
+                      bg-institution-600
+                    "
+                  />
+
+
+                  <h1
+                    className="
+                      text-2xl
+                      font-bold
+                      tracking-tight
+                      text-gray-900
+                    "
+                  >
+                    Monitoramento de Projetos
+                  </h1>
+
+                </div>
+
+
+                <p
+                  className="
+                    mt-2
+                    pl-4.5
+                    text-sm
+                    text-gray-500
+                  "
+                >
+                  Acompanhe seus projetos, etapas, ações e indicadores.
+                </p>
 
               </div>
 
 
-              <p
+              {/* ==============================================
+                  CRIAR PROJETO
+                  ============================================== */}
+
+              <button
+                type="button"
+
+                onClick={() =>
+                  setModalCriarProjetoAberto(
+                    true
+                  )
+                }
+
                 className="
-                  mt-2
-                  pl-4.5
+                  flex
+                  items-center
+                  gap-2
+                  rounded-lg
+                  bg-institution-600
+                  px-4
+                  py-2.5
                   text-sm
-                  text-gray-500
+                  font-medium
+                  text-white
+                  shadow-sm
+                  transition-all
+                  hover:bg-institution-700
+                  hover:shadow-md
                 "
               >
-                Acompanhe seus projetos, etapas, ações e indicadores.
-              </p>
+
+                <Plus className="h-4 w-4" />
+
+                Criar Novo Projeto
+
+              </button>
 
             </div>
 
 
-            <button
-              onClick={() =>
-                setModalCriarProjetoAberto(
-                  true
-                )
+            {/* ================================================
+                MODAL DE CRIAÇÃO
+                ================================================ */}
+
+            {modalCriarProjetoAberto && (
+
+              <CreateProjectModal
+                aoFechar={() =>
+                  setModalCriarProjetoAberto(
+                    false
+                  )
+                }
+
+                aoCriarProjeto={
+                  adicionarNovoProjeto
+                }
+              />
+
+            )}
+
+
+            {/* ================================================
+                ABAS
+                ================================================ */}
+
+            <TabCards
+              tabs={
+                tabs
               }
 
+              activeTab={
+                abaAtiva
+              }
+
+              onTabChange={
+                setAbaAtiva
+              }
+            />
+
+
+            {/* ================================================
+                FILTROS
+                ================================================ */}
+
+            <Filters
+              aoFiltrar={
+                aplicarFiltros
+              }
+
+              aoLimpar={
+                limparFiltros
+              }
+            />
+
+
+            {/* ================================================
+                RESUMO
+                ================================================ */}
+
+            <SummaryCards
+              cards={
+                cardsDeResumo
+              }
+            />
+
+
+            {/* ================================================
+                MEUS PROJETOS
+                ================================================ */}
+
+            {abaAtiva ===
+              'mine' && (
+
+              <ProjectList
+                projects={
+                  meusProjetosFiltrados
+                }
+
+                title={
+                  configuracaoDaAbaAtual.title
+                }
+
+                badge={
+                  meusProjetosFiltrados.length
+                }
+
+                aoAtualizarProjeto={
+                  atualizarProjeto
+                }
+
+                aoAbrirProjeto={
+                  abrirProjeto
+                }
+              />
+
+            )}
+
+
+            {/* ================================================
+                COMPARTILHADOS
+                ================================================ */}
+
+            {abaAtiva ===
+              'shared' && (
+
+              <ProjectList
+                projects={
+                  projetosCompartilhadosFiltrados
+                }
+
+                title={
+                  configuracaoDaAbaAtual.title
+                }
+
+                badge={
+                  projetosCompartilhadosFiltrados.length
+                }
+
+                showAccess
+
+                aoAbrirProjeto={
+                  abrirProjeto
+                }
+              />
+
+            )}
+
+
+            {/* ================================================
+                PLANEJAMENTO ESTRATÉGICO
+                ================================================ */}
+
+            {abaAtiva ===
+              'strategic' && (
+
+              <StrategicView
+                axes={
+                  strategicAxes
+                }
+              />
+
+            )}
+
+          </main>
+
+        )}
+
+
+        {/* ====================================================
+            KANBAN GLOBAL DE PROJETOS
+            ==================================================== */}
+
+        {paginaAtiva ===
+          'kanban-projetos' && (
+
+          <main
+            className="
+              flex-1
+              p-6
+              lg:p-8
+            "
+          >
+
+<GlobalProjectKanban
+  projetos={
+    meusProjetos
+  }
+
+  aoAbrirProjeto={
+    abrirProjetoDoKanban
+  }
+
+  aoAtualizarProjeto={
+    atualizarProjeto
+  }
+/>
+
+          </main>
+
+        )}
+
+
+        {/* ====================================================
+            OUTRAS PÁGINAS
+            ==================================================== */}
+
+        {paginaAtiva !==
+          'monitoramento' &&
+          paginaAtiva !==
+          'kanban-projetos' && (
+
+          <main
+            className="
+              flex
+              flex-1
+              items-center
+              justify-center
+              p-8
+            "
+          >
+
+            <div
               className="
-                flex
-                items-center
-                gap-2
-                rounded-lg
-                bg-institution-600
-                px-4
-                py-2.5
-                text-sm
-                font-medium
-                text-white
-                shadow-sm
-                transition-all
-                hover:bg-institution-700
-                hover:shadow-md
+                rounded-xl
+                border
+                border-dashed
+                border-gray-300
+                bg-white
+                px-10
+                py-14
+                text-center
               "
             >
 
-              <Plus className="h-4 w-4" />
-
-              Criar Novo Projeto
-
-            </button>
-
-          </div>
-
-
-          {/* ==================================================
-              MODAL DE CRIAÇÃO
-              ================================================== */}
-
-          {modalCriarProjetoAberto && (
-
-            <CreateProjectModal
-              aoFechar={() =>
-                setModalCriarProjetoAberto(
-                  false
-                )
-              }
-
-              aoCriarProjeto={
-                adicionarNovoProjeto
-              }
-            />
-
-          )}
+              <p
+                className="
+                  text-sm
+                  font-semibold
+                  text-gray-600
+                "
+              >
+                Área em construção
+              </p>
 
 
-          {/* ==================================================
-              ABAS
-              ================================================== */}
+              <p
+                className="
+                  mt-1
+                  text-xs
+                  text-gray-400
+                "
+              >
+                Esta funcionalidade será implementada posteriormente.
+              </p>
 
-          <TabCards
-            tabs={
-              tabs
-            }
+            </div>
 
-            activeTab={
-              abaAtiva
-            }
+          </main>
 
-            onTabChange={
-              setAbaAtiva
-            }
-          />
-
-
-          {/* ==================================================
-              FILTROS
-              ================================================== */}
-
-          <Filters
-            aoFiltrar={
-              aplicarFiltros
-            }
-
-            aoLimpar={
-              limparFiltros
-            }
-          />
-
-
-          {/* ==================================================
-              RESUMO
-              ================================================== */}
-
-          <SummaryCards
-            cards={
-              cardsDeResumo
-            }
-          />
-
-
-          {/* ==================================================
-              MEUS PROJETOS
-              ================================================== */}
-
-          {abaAtiva === 'mine' && (
-
-            <ProjectList
-              projects={
-                meusProjetosFiltrados
-              }
-
-              title={
-                configuracaoDaAbaAtual.title
-              }
-
-              badge={
-                meusProjetosFiltrados.length
-              }
-
-              aoAtualizarProjeto={
-                atualizarProjeto
-              }
-
-              aoAbrirProjeto={
-                abrirProjeto
-              }
-            />
-
-          )}
-
-
-          {/* ==================================================
-              COMPARTILHADOS
-              ================================================== */}
-
-          {abaAtiva === 'shared' && (
-
-            <ProjectList
-              projects={
-                projetosCompartilhadosFiltrados
-              }
-
-              title={
-                configuracaoDaAbaAtual.title
-              }
-
-              badge={
-                projetosCompartilhadosFiltrados.length
-              }
-
-              showAccess
-
-              aoAbrirProjeto={
-                abrirProjeto
-              }
-            />
-
-          )}
-
-
-          {/* ==================================================
-              PLANEJAMENTO ESTRATÉGICO
-              ================================================== */}
-
-          {abaAtiva ===
-            'strategic' && (
-
-            <StrategicView
-              axes={
-                strategicAxes
-              }
-            />
-
-          )}
-
-        </main>
+        )}
 
       </div>
 
