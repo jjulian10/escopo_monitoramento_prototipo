@@ -138,6 +138,151 @@ export interface ProjectCompletionEvidence {
   completedBy?: string;
 }
 
+// =========================================================
+// TIPO DO ARQUIVO DO PROJETO
+// =========================================================
+
+export type ProjectDocumentType =
+  | 'image'
+  | 'document';
+
+
+// =========================================================
+// ORIGEM DO ARQUIVO
+// =========================================================
+
+export type ProjectDocumentOrigin =
+  | 'project'
+  | 'task'
+  | 'subtask';
+
+
+// =========================================================
+// INTERFACE: DOCUMENTO / ARQUIVO DO PROJETO
+// =========================================================
+
+export interface ProjectDocument {
+
+  /*
+   * Identificador interno do registro.
+   *
+   * Futuramente deverá ser o ID retornado pelo backend.
+   */
+  id: string;
+
+
+  /*
+   * Nome apresentado na interface.
+   *
+   * Exemplo:
+   * comprovacao-switch-core.png
+   */
+  name: string;
+
+
+  /*
+   * Nome original do arquivo.
+   */
+  fileName: string;
+
+
+  /*
+   * Define se o arquivo é uma imagem
+   * ou um documento.
+   */
+  type: ProjectDocumentType;
+
+
+  /*
+   * MIME type do arquivo.
+   *
+   * Exemplos:
+   *
+   * image/png
+   * image/jpeg
+   * application/pdf
+   */
+  mimeType?: string;
+
+
+  /*
+   * Tamanho do arquivo em bytes.
+   *
+   * No protótipo pode ficar opcional.
+   */
+  size?: number;
+
+
+  /*
+   * Origem do arquivo dentro do projeto.
+   *
+   * project
+   * → arquivo enviado diretamente ao projeto
+   *
+   * task
+   * → arquivo originado de uma tarefa
+   *
+   * subtask
+   * → arquivo originado de uma subtarefa
+   */
+  origin: ProjectDocumentOrigin;
+
+
+  /*
+   * Usuário responsável pelo envio.
+   */
+  uploadedBy: string;
+
+
+  /*
+   * Data/hora do envio em ISO.
+   *
+   * Exemplo:
+   * 2026-09-11T09:30:00
+   */
+  uploadedAt: string;
+
+
+  // =======================================================
+  // TAREFA DE ORIGEM
+  // =======================================================
+
+  taskId?: string;
+
+  taskTitle?: string;
+
+  taskOrder?: number;
+
+
+  // =======================================================
+  // SUBTAREFA DE ORIGEM
+  // =======================================================
+
+  subtaskId?: string;
+
+  subtaskTitle?: string;
+
+  subtaskOrder?: number;
+
+
+  // =======================================================
+  // CONTEXTO
+  // =======================================================
+
+  /*
+   * Permite identificar que o documento foi anexado
+   * como comprovação de conclusão.
+   */
+  isCompletionEvidence?: boolean;
+
+
+  /*
+   * Futuramente, quando houver backend/storage,
+   * poderá armazenar a URL real do arquivo.
+   */
+  url?: string;
+}
+
 
 // =========================================================
 // TIPOS DO HISTÓRICO
@@ -165,7 +310,11 @@ export type ProjectHistoryType =
   // Equipe
   | 'team_member_added'
   | 'team_member_updated'
-  | 'team_member_removed';
+  | 'team_member_removed'
+
+  // Documentos
+  | 'document_added'
+  | 'document_removed';
 
 
 // =========================================================
@@ -192,22 +341,37 @@ export interface ProjectHistoryItem {
   createdAt: string;
 
   metadata?: {
+
+    // =======================================================
+    // VALORES
+    // =======================================================
+
     previousValue?: string;
 
     newValue?: string;
 
+
+    // =======================================================
+    // TAREFAS
+    // =======================================================
+
     taskId?: string;
 
-    subtaskId?: string;
-
     taskTitle?: string;
+
+
+    // =======================================================
+    // SUBTAREFAS
+    // =======================================================
+
+    subtaskId?: string;
 
     subtaskTitle?: string;
 
 
-    // =====================================================
+    // =======================================================
     // EQUIPE
-    // =====================================================
+    // =======================================================
 
     memberId?: string;
 
@@ -218,6 +382,19 @@ export interface ProjectHistoryItem {
     newRole?: ProjectRole;
 
     systemProfile?: SystemProfile;
+
+
+    // =======================================================
+    // DOCUMENTOS
+    // =======================================================
+
+    documentId?: string;
+
+    documentName?: string;
+
+    documentType?: ProjectDocumentType;
+
+    documentOrigin?: ProjectDocumentOrigin;
   };
 }
 
@@ -398,6 +575,22 @@ export interface Project {
 
   // Tarefas / ações do projeto
   tasks?: ProjectTask[];
+
+  // =======================================================
+// DOCUMENTOS / ARQUIVOS
+// =======================================================
+
+/*
+ * Arquivos vinculados ao projeto.
+ *
+ * Aqui serão armazenados os registros de:
+ *
+ * - imagens de comprovação;
+ * - documentos de comprovação;
+ * - arquivos vinculados às tarefas;
+ * - arquivos vinculados às subtarefas.
+ */
+documents?: ProjectDocument[];
 
 
   // =======================================================

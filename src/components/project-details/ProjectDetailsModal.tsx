@@ -13,6 +13,7 @@ import type {
   ProjectTask,
   ProjectHistoryItem,
   ProjectMember,
+  ProjectDocument,
 } from '@/data/projects';
 
 import ProjectDetailsSidebar, {
@@ -30,6 +31,8 @@ import ProjectHistory from './ProjectHistory';
 import ProjectIndicators from './ProjectIndicators';
 
 import ProjectTeam from './ProjectTeam';
+
+import ProjectDocuments from './ProjectDocuments';
 
 
 /* ============================================================
@@ -173,6 +176,43 @@ export default function ProjectDetailsModal({
             projetoAtual.history ??
             []
           ),
+        ],
+
+      })
+    );
+
+  }
+
+
+  /* ==========================================================
+     ADICIONAR DOCUMENTOS AO PROJETO
+     ========================================================== */
+
+  function adicionarDocumentos(
+    novosDocumentos: ProjectDocument[]
+  ) {
+
+    if (
+      novosDocumentos.length === 0
+    ) {
+
+      return;
+
+    }
+
+
+    setProjetoLocal(
+      (projetoAtual) => ({
+
+        ...projetoAtual,
+
+        documents: [
+          ...(
+            projetoAtual.documents ??
+            []
+          ),
+
+          ...novosDocumentos,
         ],
 
       })
@@ -518,6 +558,10 @@ export default function ProjectDetailsModal({
           aoRegistrarHistorico={
             registrarHistorico
           }
+
+          aoAdicionarDocumentos={
+            adicionarDocumentos
+          }
         />
 
       );
@@ -553,6 +597,27 @@ export default function ProjectDetailsModal({
       );
 
     }
+
+    /* --------------------------------------------------------
+   DOCUMENTOS
+   -------------------------------------------------------- */
+
+if (
+  secaoAtiva ===
+  'documentos'
+) {
+
+  return (
+
+    <ProjectDocuments
+      projeto={
+        projetoLocal
+      }
+    />
+
+  );
+
+}
 
 
     /* --------------------------------------------------------

@@ -50,35 +50,42 @@ import type {
   ProjectSubtask,
   ProjectHistoryItem,
   ProjectCompletionEvidence,
+  ProjectDocument,
   TaskStatusType,
   TagType,
 } from '@/data/projects';
 
 import TaskTags from '@/components/task-tags/TaskTags';
 
-import CompleteSubtaskModal from './CompleteSubtaskModal';
+import CompleteSubtaskModal, {
+  type ArquivoConclusaoSelecionado,
+} from './CompleteSubtaskModal';
 
 
 /* ============================================================
    PROPRIEDADES
    ============================================================ */
 
-interface KanbanProjetoProps {
-  projeto: Project;
-
-  tarefas: ProjectTask[];
-
-  aoAlterarTarefas: (
-    tarefas: ProjectTask[]
-  ) => void;
-
-  aoRegistrarHistorico: (
-    item: Omit<
-      ProjectHistoryItem,
-      'id' | 'createdAt'
-    >
-  ) => void;
-}
+   interface KanbanProjetoProps {
+    projeto: Project;
+  
+    tarefas: ProjectTask[];
+  
+    aoAlterarTarefas: (
+      tarefas: ProjectTask[]
+    ) => void;
+  
+    aoRegistrarHistorico: (
+      item: Omit<
+        ProjectHistoryItem,
+        'id' | 'createdAt'
+      >
+    ) => void;
+  
+    aoAdicionarDocumentos: (
+      documentos: ProjectDocument[]
+    ) => void;
+  }
 
 
 /* ============================================================
@@ -1527,12 +1534,13 @@ function ColunaKanban({
    COMPONENTE PRINCIPAL
    ============================================================ */
 
-export default function ProjectKanban({
-  projeto,
-  tarefas,
-  aoAlterarTarefas,
-  aoRegistrarHistorico,
-}: KanbanProjetoProps) {
+   export default function ProjectKanban({
+    projeto,
+    tarefas,
+    aoAlterarTarefas,
+    aoRegistrarHistorico,
+    aoAdicionarDocumentos,
+  }: KanbanProjetoProps) {
 
 
   /* ==========================================================
@@ -2467,9 +2475,10 @@ export default function ProjectKanban({
      CONFIRMAR CONCLUSÃO
      ========================================================== */
 
-  function confirmarConclusao(
-    evidencia: ProjectCompletionEvidence
-  ) {
+     function confirmarConclusao(
+      evidencia: ProjectCompletionEvidence,
+      arquivos: ArquivoConclusaoSelecionado[]
+    ) {
 
     if (
       !subtarefaParaConcluir
@@ -2482,6 +2491,107 @@ export default function ProjectKanban({
 
     const subtarefa =
       subtarefaParaConcluir;
+
+      /* ========================================================
+   DOCUMENTOS DA COMPROVAÇÃO
+   ======================================================== */
+
+const dataDoEnvio =
+evidencia.completedAt ??
+new Date().toISOString();
+
+
+const usuarioDoEnvio =
+evidencia.completedBy ??
+subtarefa.responsible;
+
+
+const documentosGerados:
+ProjectDocument[] =
+
+arquivos.map(
+  (
+    arquivo,
+    indice
+  ) => ({
+
+    id:
+      `document-${Date.now()}-${indice}-${Math.random()
+        .toString(36)
+        .slice(2, 8)}`,
+
+    name:
+      arquivo.fileName,
+
+    fileName:
+      arquivo.fileName,
+
+    type:
+      arquivo.type,
+
+    mimeType:
+      arquivo.mimeType,
+
+    size:
+      arquivo.size,
+
+    origin:
+      'subtask',
+
+    uploadedBy:
+      usuarioDoEnvio,
+
+    uploadedAt:
+      dataDoEnvio,
+
+
+    /* ------------------------------------------------------
+       TAREFA
+       ------------------------------------------------------ */
+
+    taskId:
+      subtarefa.tarefaId,
+
+    taskTitle:
+      subtarefa.tarefaTitulo,
+
+    taskOrder:
+      subtarefa.tarefaOrdem,
+
+
+    /* ------------------------------------------------------
+       SUBTAREFA
+       ------------------------------------------------------ */
+
+    subtaskId:
+      subtarefa.id,
+
+    subtaskTitle:
+      subtarefa.title,
+
+    subtaskOrder:
+      subtarefa.order,
+
+
+    /* ------------------------------------------------------
+       ORIGEM DA COMPROVAÇÃO
+       ------------------------------------------------------ */
+
+    isCompletionEvidence:
+      true,
+
+  })
+);
+
+if (
+  documentosGerados.length > 0
+) {
+
+  aoAdicionarDocumentos(
+    documentosGerados
+  );
+
+}
 
 
     /* ========================================================
