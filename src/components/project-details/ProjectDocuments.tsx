@@ -1,4 +1,9 @@
 import {
+    useMemo,
+    useState,
+  } from 'react';
+  
+  import {
     FileText,
     Image,
     FolderOpen,
@@ -7,6 +12,10 @@ import {
     ListChecks,
     CheckCircle2,
     Eye,
+    Search,
+    X,
+    Filter,
+    RotateCcw,
   } from 'lucide-react';
   
   import type {
@@ -22,6 +31,16 @@ import {
   interface ProjectDocumentsProps {
     projeto: Project;
   }
+  
+  
+  /* ============================================================
+     TIPO DO FILTRO
+     ============================================================ */
+  
+  type FiltroTipoDocumento =
+    | 'todos'
+    | 'image'
+    | 'document';
   
   
   /* ============================================================
@@ -124,6 +143,26 @@ import {
   
   
   /* ============================================================
+     NORMALIZAR TEXTO
+     ============================================================ */
+  
+  function normalizarTexto(
+    texto: string
+  ) {
+  
+    return texto
+      .normalize('NFD')
+      .replace(
+        /[\u0300-\u036f]/g,
+        ''
+      )
+      .toLowerCase()
+      .trim();
+  
+  }
+  
+  
+  /* ============================================================
      COMPONENTE PRINCIPAL
      ============================================================ */
   
@@ -140,6 +179,106 @@ import {
       ProjectDocument[] =
       projeto.documents ??
       [];
+  
+  
+    /* ==========================================================
+       PESQUISA
+       ========================================================== */
+  
+    const [
+      pesquisa,
+      setPesquisa,
+    ] = useState('');
+  
+  
+    /* ==========================================================
+       FILTRO POR TIPO
+       ========================================================== */
+  
+    const [
+      filtroTipo,
+      setFiltroTipo,
+    ] = useState<FiltroTipoDocumento>(
+      'todos'
+    );
+  
+  
+    /* ==========================================================
+       DOCUMENTOS FILTRADOS
+       ========================================================== */
+  
+    const documentosFiltrados =
+      useMemo(
+        () => {
+  
+          const termo =
+            normalizarTexto(
+              pesquisa
+            );
+  
+  
+          return documentos.filter(
+            (documento) => {
+  
+  
+              /* --------------------------------------------------
+                 TIPO
+                 -------------------------------------------------- */
+  
+              const correspondeAoTipo =
+  
+                filtroTipo ===
+                  'todos' ||
+  
+                documento.type ===
+                  filtroTipo;
+  
+  
+              /* --------------------------------------------------
+                 CONTEÚDO PESQUISÁVEL
+                 -------------------------------------------------- */
+  
+              const conteudo =
+                normalizarTexto(
+                  [
+                    documento.name,
+                    documento.fileName,
+                    documento.uploadedBy,
+                    documento.taskTitle ?? '',
+                    documento.subtaskTitle ?? '',
+                    documento.mimeType ?? '',
+                  ].join(' ')
+                );
+  
+  
+              /* --------------------------------------------------
+                 PESQUISA
+                 -------------------------------------------------- */
+  
+              const correspondePesquisa =
+  
+                termo === '' ||
+  
+                conteudo.includes(
+                  termo
+                );
+  
+  
+              return (
+                correspondeAoTipo &&
+                correspondePesquisa
+              );
+  
+            }
+          );
+  
+        },
+        [
+          documentos,
+          pesquisa,
+          filtroTipo,
+        ]
+      );
   
   
     /* ==========================================================
@@ -160,6 +299,36 @@ import {
           documento.type ===
           'document'
       ).length;
+  
+  
+    /* ==========================================================
+       EXISTE FILTRO ATIVO
+       ========================================================== */
+  
+    const possuiFiltroAtivo =
+  
+      pesquisa.trim() !== '' ||
+  
+      filtroTipo !==
+        'todos';
+  
+  
+    /* ==========================================================
+       LIMPAR FILTROS
+       ========================================================== */
+  
+    function limparFiltros() {
+  
+      setPesquisa(
+        ''
+      );
+  
+  
+      setFiltroTipo(
+        'todos'
+      );
+  
+    }
   
   
     /* ==========================================================
@@ -309,6 +478,337 @@ import {
   
   
         {/* ======================================================
+            PESQUISA / FILTROS
+            ====================================================== */}
+  
+        {documentos.length > 0 && (
+  
+          <div
+            className="
+              rounded-xl
+              border
+              border-gray-200
+              bg-white
+              p-4
+              shadow-sm
+            "
+          >
+  
+            <div
+              className="
+                flex
+                flex-col
+                gap-3
+                lg:flex-row
+                lg:items-center
+                lg:justify-between
+              "
+            >
+  
+  
+              {/* ==================================================
+                  PESQUISA
+                  ================================================== */}
+  
+              <div
+                className="
+                  relative
+                  w-full
+                  lg:max-w-xl
+                "
+              >
+  
+                <Search
+                  className="
+                    absolute
+                    left-3
+                    top-1/2
+                    h-4
+                    w-4
+                    -translate-y-1/2
+                    text-gray-400
+                  "
+                />
+  
+  
+                <input
+                  type="text"
+  
+                  value={
+                    pesquisa
+                  }
+  
+                  onChange={(evento) =>
+                    setPesquisa(
+                      evento.target.value
+                    )
+                  }
+  
+                  placeholder="Pesquisar arquivo, responsável, tarefa ou subtarefa..."
+  
+                  className="
+                    w-full
+                    rounded-lg
+                    border
+                    border-gray-300
+                    bg-white
+                    py-2.5
+                    pl-10
+                    pr-10
+                    text-sm
+                    text-gray-700
+                    outline-none
+                    transition-all
+                    placeholder:text-gray-400
+                    focus:border-institution-500
+                    focus:ring-2
+                    focus:ring-institution-100
+                  "
+                />
+  
+  
+                {pesquisa && (
+  
+                  <button
+                    type="button"
+  
+                    onClick={() =>
+                      setPesquisa('')
+                    }
+  
+                    className="
+                      absolute
+                      right-2
+                      top-1/2
+                      flex
+                      h-7
+                      w-7
+                      -translate-y-1/2
+                      items-center
+                      justify-center
+                      rounded-md
+                      text-gray-400
+                      transition-colors
+                      hover:bg-gray-100
+                      hover:text-gray-600
+                    "
+  
+                    title="Limpar pesquisa"
+                  >
+  
+                    <X className="h-4 w-4" />
+  
+                  </button>
+  
+                )}
+  
+              </div>
+  
+  
+              {/* ==================================================
+                  FILTROS
+                  ================================================== */}
+  
+              <div
+                className="
+                  flex
+                  flex-wrap
+                  items-center
+                  gap-2
+                "
+              >
+  
+                <Filter
+                  className="
+                    mr-1
+                    h-4
+                    w-4
+                    text-gray-400
+                  "
+                />
+  
+  
+                {([
+                  [
+                    'todos',
+                    'Todos',
+                  ],
+  
+                  [
+                    'image',
+                    'Imagens',
+                  ],
+  
+                  [
+                    'document',
+                    'Documentos',
+                  ],
+                ] as Array<
+                  [
+                    FiltroTipoDocumento,
+                    string
+                  ]
+                >).map(
+                  ([
+                    valor,
+                    label,
+                  ]) => (
+  
+                    <button
+                      key={
+                        valor
+                      }
+  
+                      type="button"
+  
+                      onClick={() =>
+                        setFiltroTipo(
+                          valor
+                        )
+                      }
+  
+                      className={`
+                        rounded-lg
+                        border
+                        px-3
+                        py-1.5
+                        text-xs
+                        font-medium
+                        transition-all
+  
+                        ${
+                          filtroTipo ===
+                          valor
+  
+                            ? `
+                              border-institution-200
+                              bg-institution-50
+                              text-institution-700
+                            `
+  
+                            : `
+                              border-gray-200
+                              bg-white
+                              text-gray-500
+                              hover:bg-gray-50
+                              hover:text-gray-700
+                            `
+                        }
+                      `}
+                    >
+                      {label}
+                    </button>
+  
+                  )
+                )}
+  
+  
+                {/* ================================================
+                    LIMPAR FILTROS
+                    ================================================ */}
+  
+                {possuiFiltroAtivo && (
+  
+                  <button
+                    type="button"
+  
+                    onClick={
+                      limparFiltros
+                    }
+  
+                    className="
+                      ml-1
+                      inline-flex
+                      items-center
+                      gap-1.5
+                      rounded-lg
+                      border
+                      border-gray-200
+                      bg-white
+                      px-3
+                      py-1.5
+                      text-xs
+                      font-medium
+                      text-gray-500
+                      transition-all
+                      hover:border-gray-300
+                      hover:bg-gray-50
+                      hover:text-gray-700
+                    "
+                  >
+  
+                    <RotateCcw className="h-3.5 w-3.5" />
+  
+                    Limpar
+  
+                  </button>
+  
+                )}
+  
+              </div>
+  
+            </div>
+  
+  
+            {/* ==================================================
+                RESULTADOS
+                ================================================== */}
+  
+            <div
+              className="
+                mt-3
+                flex
+                items-center
+                justify-between
+                border-t
+                border-gray-100
+                pt-3
+              "
+            >
+  
+              <p
+                className="
+                  text-xs
+                  text-gray-400
+                "
+              >
+                Exibindo{' '}
+  
+                <span
+                  className="
+                    font-semibold
+                    text-gray-600
+                  "
+                >
+                  {documentosFiltrados.length}
+                </span>
+  
+                {' '}de{' '}
+  
+                <span
+                  className="
+                    font-semibold
+                    text-gray-600
+                  "
+                >
+                  {documentos.length}
+                </span>
+  
+                {' '}
+  
+                {documentos.length === 1
+                  ? 'arquivo'
+                  : 'arquivos'}
+              </p>
+  
+            </div>
+  
+          </div>
+  
+        )}
+  
+  
+        {/* ======================================================
             SEM DOCUMENTOS
             ====================================================== */}
   
@@ -366,6 +866,96 @@ import {
   
           </div>
   
+        ) : documentosFiltrados.length === 0 ? (
+  
+          /* =====================================================
+             SEM RESULTADOS
+             ===================================================== */
+  
+          <div
+            className="
+              rounded-xl
+              border
+              border-dashed
+              border-gray-300
+              bg-gray-50
+              px-6
+              py-14
+              text-center
+            "
+          >
+  
+            <Search
+              className="
+                mx-auto
+                h-8
+                w-8
+                text-gray-300
+              "
+            />
+  
+  
+            <p
+              className="
+                mt-3
+                text-sm
+                font-semibold
+                text-gray-600
+              "
+            >
+              Nenhum documento encontrado
+            </p>
+  
+  
+            <p
+              className="
+                mx-auto
+                mt-1
+                max-w-md
+                text-xs
+                leading-relaxed
+                text-gray-400
+              "
+            >
+              Tente pesquisar utilizando outro nome,
+              responsável, tarefa, subtarefa ou tipo de arquivo.
+            </p>
+  
+  
+            <button
+              type="button"
+  
+              onClick={
+                limparFiltros
+              }
+  
+              className="
+                mt-4
+                inline-flex
+                items-center
+                gap-1.5
+                rounded-lg
+                border
+                border-gray-200
+                bg-white
+                px-3
+                py-2
+                text-xs
+                font-medium
+                text-gray-600
+                transition-all
+                hover:bg-gray-50
+              "
+            >
+  
+              <RotateCcw className="h-3.5 w-3.5" />
+  
+              Limpar filtros
+  
+            </button>
+  
+          </div>
+  
         ) : (
   
           /* =====================================================
@@ -374,7 +964,7 @@ import {
   
           <div className="space-y-3">
   
-            {documentos.map(
+            {documentosFiltrados.map(
               (documento) => {
   
   
