@@ -6,6 +6,7 @@ import {
     CalendarDays,
     ListChecks,
     CheckCircle2,
+    Eye,
   } from 'lucide-react';
   
   import type {
@@ -99,7 +100,8 @@ import {
   
   
     if (
-      tamanho < 1024 * 1024
+      tamanho <
+      1024 * 1024
     ) {
   
       return `${(
@@ -411,7 +413,6 @@ import {
                     "
                   >
   
-  
                     <div
                       className="
                         flex
@@ -548,7 +549,9 @@ import {
   
   
                           {tamanhoFormatado && (
+  
                             <>
+  
                               <span>
                                 •
                               </span>
@@ -556,7 +559,9 @@ import {
                               <span>
                                 {tamanhoFormatado}
                               </span>
+  
                             </>
+  
                           )}
   
                         </div>
@@ -699,7 +704,7 @@ import {
   
   
                         {/* =======================================
-                            RESPONSÁVEL / DATA
+                            RESPONSÁVEL / DATA / AÇÕES
                             ======================================= */}
   
                         <div
@@ -708,59 +713,123 @@ import {
                             flex
                             flex-wrap
                             items-center
-                            gap-x-5
-                            gap-y-2
+                            justify-between
+                            gap-3
                             border-t
                             border-gray-100
                             pt-3
-                            text-xs
-                            text-gray-500
                           "
                         >
   
+  
+                          {/* =====================================
+                              INFORMAÇÕES DO ENVIO
+                              ===================================== */}
+  
                           <div
                             className="
                               flex
+                              flex-wrap
                               items-center
-                              gap-1.5
+                              gap-x-5
+                              gap-y-2
+                              text-xs
+                              text-gray-500
                             "
                           >
   
-                            <User className="h-3.5 w-3.5" />
-  
-                            <span>
-                              Anexado por
-                            </span>
-  
-                            <strong
+                            <div
                               className="
-                                font-semibold
-                                text-gray-700
+                                flex
+                                items-center
+                                gap-1.5
                               "
                             >
-                              {documento.uploadedBy}
-                            </strong>
+  
+                              <User className="h-3.5 w-3.5" />
+  
+                              <span>
+                                Anexado por
+                              </span>
+  
+                              <strong
+                                className="
+                                  font-semibold
+                                  text-gray-700
+                                "
+                              >
+                                {documento.uploadedBy}
+                              </strong>
+  
+                            </div>
+  
+  
+                            <div
+                              className="
+                                flex
+                                items-center
+                                gap-1.5
+                              "
+                            >
+  
+                              <CalendarDays className="h-3.5 w-3.5" />
+  
+                              <span>
+                                {formatarDataHora(
+                                  documento.uploadedAt
+                                )}
+                              </span>
+  
+                            </div>
   
                           </div>
   
   
-                          <div
-                            className="
-                              flex
-                              items-center
-                              gap-1.5
-                            "
-                          >
+                          {/* =====================================
+                              VISUALIZAR
+                              ===================================== */}
   
-                            <CalendarDays className="h-3.5 w-3.5" />
+                          {documento.url && (
   
-                            <span>
-                              {formatarDataHora(
-                                documento.uploadedAt
-                              )}
-                            </span>
+                            <button
+                              type="button"
   
-                          </div>
+                              onClick={() => {
+  
+                                window.open(
+                                  documento.url,
+                                  '_blank',
+                                  'noopener,noreferrer'
+                                );
+  
+                              }}
+  
+                              className="
+                                inline-flex
+                                items-center
+                                gap-1.5
+                                rounded-lg
+                                border
+                                border-institution-200
+                                bg-institution-50
+                                px-3
+                                py-2
+                                text-xs
+                                font-semibold
+                                text-institution-700
+                                transition-all
+                                hover:border-institution-300
+                                hover:bg-institution-100
+                              "
+                            >
+  
+                              <Eye className="h-3.5 w-3.5" />
+  
+                              Visualizar
+  
+                            </button>
+  
+                          )}
   
                         </div>
   

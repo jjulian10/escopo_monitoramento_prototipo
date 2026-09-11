@@ -31,15 +31,26 @@ import type {
    um ProjectDocument dentro do projeto.
    ============================================================ */
 
-export interface ArquivoConclusaoSelecionado {
-  fileName: string;
-
-  type: ProjectDocumentType;
-
-  mimeType?: string;
-
-  size?: number;
-}
+   export interface ArquivoConclusaoSelecionado {
+    fileName: string;
+  
+    type: ProjectDocumentType;
+  
+    mimeType?: string;
+  
+    size?: number;
+  
+    /*
+     * URL temporária criada pelo navegador.
+     *
+     * No protótipo será utilizada para visualizar
+     * o arquivo anexado sem necessidade de backend.
+     *
+     * Futuramente será substituída pela URL
+     * retornada pelo servidor/storage.
+     */
+    url?: string;
+  }
 
 
 /* ============================================================
@@ -201,56 +212,66 @@ export default function CompleteSubtaskModal({
        IMAGEM
        -------------------------------------------------------- */
 
-    if (
-      imagemSelecionada
-    ) {
-
-      arquivos.push({
-
-        fileName:
-          imagemSelecionada.name,
-
-        type:
-          'image',
-
-        mimeType:
-          imagemSelecionada.type ||
-          undefined,
-
-        size:
-          imagemSelecionada.size,
-
-      });
-
-    }
+       if (
+        imagemSelecionada
+      ) {
+      
+        arquivos.push({
+      
+          fileName:
+            imagemSelecionada.name,
+      
+          type:
+            'image',
+      
+          mimeType:
+            imagemSelecionada.type ||
+            undefined,
+      
+          size:
+            imagemSelecionada.size,
+      
+          url:
+            URL.createObjectURL(
+              imagemSelecionada
+            ),
+      
+        });
+      
+      }
 
 
     /* --------------------------------------------------------
        DOCUMENTO
        -------------------------------------------------------- */
 
-    if (
-      documentoSelecionado
-    ) {
-
-      arquivos.push({
-
-        fileName:
-          documentoSelecionado.name,
-
-        type:
-          'document',
-
-        mimeType:
-          documentoSelecionado.type ||
-          undefined,
-
-        size:
-          documentoSelecionado.size,
-
-      });
-
-    }
+       if (
+        documentoSelecionado
+      ) {
+      
+        arquivos.push({
+      
+          fileName:
+            documentoSelecionado.name,
+      
+          type:
+            'document',
+      
+          mimeType:
+            documentoSelecionado.type ||
+            undefined,
+      
+          size:
+            documentoSelecionado.size,
+      
+          url:
+            URL.createObjectURL(
+              documentoSelecionado
+            ),
+      
+        });
+      
+      }
 
 
     /* --------------------------------------------------------

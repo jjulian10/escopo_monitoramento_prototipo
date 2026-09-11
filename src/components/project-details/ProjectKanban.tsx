@@ -2535,6 +2535,9 @@ arquivos.map(
     size:
       arquivo.size,
 
+      url:
+  arquivo.url,
+
     origin:
       'subtask',
 
@@ -2572,6 +2575,8 @@ arquivos.map(
     subtaskOrder:
       subtarefa.order,
 
+    
+
 
     /* ------------------------------------------------------
        ORIGEM DA COMPROVAÇÃO
@@ -2579,6 +2584,8 @@ arquivos.map(
 
     isCompletionEvidence:
       true,
+
+      
 
   })
 );
