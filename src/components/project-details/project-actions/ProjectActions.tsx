@@ -45,32 +45,14 @@ type NovoRegistroHistorico =
 
 interface ProjectActionsProps {
 
-  /* Projeto atualmente aberto */
   projeto: Project;
 
-
-  /*
-   * Lista compartilhada de tarefas.
-   *
-   * Essa mesma lista também será utilizada
-   * pelo Kanban.
-   */
   tarefas: ProjectTask[];
 
-
-  /*
-   * Função responsável por atualizar
-   * a lista compartilhada.
-   */
   aoAlterarTarefas: (
     tarefas: ProjectTask[]
   ) => void;
 
-
-  /*
-   * Registra movimentações no histórico
-   * do projeto.
-   */
   aoRegistrarHistorico: (
     item: NovoRegistroHistorico
   ) => void;
@@ -101,7 +83,6 @@ const configuracaoDosStatus: Record<
       CircleDashed,
   },
 
-
   'Em andamento': {
     texto:
       'text-blue-700',
@@ -113,7 +94,6 @@ const configuracaoDosStatus: Record<
       Clock3,
   },
 
-
   Homologação: {
     texto:
       'text-amber-700',
@@ -124,7 +104,6 @@ const configuracaoDosStatus: Record<
     Icone:
       ShieldCheck,
   },
-
 
   Concluído: {
     texto:
@@ -145,24 +124,15 @@ const configuracaoDosStatus: Record<
    ============================================================ */
 
 export default function ProjectActions({
-
   projeto,
-
   tarefas,
-
   aoAlterarTarefas,
-
   aoRegistrarHistorico,
-
 }: ProjectActionsProps) {
 
 
   /* ==========================================================
      TAREFAS EXPANDIDAS
-     ==========================================================
-
-     Esse estado pode continuar local porque ele controla
-     apenas o comportamento visual desta tela.
      ========================================================== */
 
   const [
@@ -210,8 +180,7 @@ export default function ProjectActions({
 
           ? atuais.filter(
               (id) =>
-                id !==
-                idDaTarefa
+                id !== idDaTarefa
             )
 
           : [
@@ -288,6 +257,15 @@ export default function ProjectActions({
       ]
     );
 
+
+    /* --------------------------------------------------------
+       FECHA O MODAL
+       -------------------------------------------------------- */
+
+    setModalNovaTarefa(
+      false
+    );
+
   }
 
 
@@ -301,7 +279,7 @@ export default function ProjectActions({
 
 
     /* --------------------------------------------------------
-       LOCALIZA A TAREFA ANTES DA EXCLUSÃO
+       LOCALIZA A TAREFA
        -------------------------------------------------------- */
 
     const tarefaExcluida =
@@ -316,6 +294,11 @@ export default function ProjectActions({
       !tarefaExcluida
     ) {
 
+      console.error(
+        'Tarefa não encontrada:',
+        idDaTarefa
+      );
+
       return;
 
     }
@@ -327,7 +310,7 @@ export default function ProjectActions({
 
     const confirmar =
       window.confirm(
-        'Deseja realmente excluir esta tarefa e suas subtarefas?'
+        `Deseja realmente excluir a tarefa "${tarefaExcluida.title}" e todas as suas subtarefas?`
       );
 
 
@@ -341,7 +324,28 @@ export default function ProjectActions({
 
 
     /* --------------------------------------------------------
-       REGISTRA NO HISTÓRICO
+       NOVA LISTA SEM A TAREFA
+       -------------------------------------------------------- */
+
+    const novaListaDeTarefas =
+      tarefas.filter(
+        (tarefa) =>
+          tarefa.id !==
+          idDaTarefa
+      );
+
+
+    /* --------------------------------------------------------
+       PRIMEIRO REMOVE DA LISTA
+       -------------------------------------------------------- */
+
+    aoAlterarTarefas(
+      novaListaDeTarefas
+    );
+
+
+    /* --------------------------------------------------------
+       DEPOIS REGISTRA NO HISTÓRICO
        -------------------------------------------------------- */
 
     aoRegistrarHistorico({
@@ -372,24 +376,7 @@ export default function ProjectActions({
 
 
     /* --------------------------------------------------------
-       REMOVE DA LISTA
-       -------------------------------------------------------- */
-
-    const novaListaDeTarefas =
-      tarefas.filter(
-        (tarefa) =>
-          tarefa.id !==
-          idDaTarefa
-      );
-
-
-    aoAlterarTarefas(
-      novaListaDeTarefas
-    );
-
-
-    /* --------------------------------------------------------
-       REMOVE DA LISTA DE EXPANDIDOS
+       REMOVE DOS ITENS EXPANDIDOS
        -------------------------------------------------------- */
 
     setTarefasExpandidas(
@@ -399,6 +386,22 @@ export default function ProjectActions({
             id !==
             idDaTarefa
         )
+    );
+
+
+    /* --------------------------------------------------------
+       LIMPA REFERÊNCIA CASO ESTEJA ABERTA
+       -------------------------------------------------------- */
+
+    setTarefaParaSubtarefa(
+      (tarefaAtual) =>
+
+        tarefaAtual?.id ===
+        idDaTarefa
+
+          ? null
+
+          : tarefaAtual
     );
 
   }
@@ -430,13 +433,18 @@ export default function ProjectActions({
       !tarefaPai
     ) {
 
+      console.error(
+        'Tarefa pai não encontrada:',
+        idDaTarefa
+      );
+
       return;
 
     }
 
 
     /* --------------------------------------------------------
-       ATUALIZA LISTA
+       NOVA LISTA
        -------------------------------------------------------- */
 
     const novaListaDeTarefas =
@@ -462,6 +470,10 @@ export default function ProjectActions({
             : tarefa
       );
 
+
+    /* --------------------------------------------------------
+       ATUALIZA LISTA
+       -------------------------------------------------------- */
 
     aoAlterarTarefas(
       novaListaDeTarefas
@@ -506,7 +518,7 @@ export default function ProjectActions({
 
 
     /* --------------------------------------------------------
-       GARANTE QUE A TAREFA FIQUE EXPANDIDA
+       MANTÉM TAREFA EXPANDIDA
        -------------------------------------------------------- */
 
     if (
@@ -524,6 +536,15 @@ export default function ProjectActions({
 
     }
 
+
+    /* --------------------------------------------------------
+       FECHA MODAL
+       -------------------------------------------------------- */
+
+    setTarefaParaSubtarefa(
+      null
+    );
+
   }
 
 
@@ -538,7 +559,7 @@ export default function ProjectActions({
 
 
     /* --------------------------------------------------------
-       LOCALIZA A TAREFA
+       LOCALIZA TAREFA PAI
        -------------------------------------------------------- */
 
     const tarefaPai =
@@ -549,24 +570,43 @@ export default function ProjectActions({
       );
 
 
+    if (
+      !tarefaPai
+    ) {
+
+      console.error(
+        'Tarefa pai não encontrada:',
+        idDaTarefa
+      );
+
+      return;
+
+    }
+
+
     /* --------------------------------------------------------
-       LOCALIZA A SUBTAREFA
+       LOCALIZA SUBTAREFA
        -------------------------------------------------------- */
 
     const subtarefaExcluida =
-      tarefaPai
-        ?.subtasks
-        ?.find(
-          (subtarefa) =>
-            subtarefa.id ===
-            idDaSubtarefa
-        );
+      (
+        tarefaPai.subtasks ??
+        []
+      ).find(
+        (subtarefa) =>
+          subtarefa.id ===
+          idDaSubtarefa
+      );
 
 
     if (
-      !tarefaPai ||
       !subtarefaExcluida
     ) {
+
+      console.error(
+        'Subtarefa não encontrada:',
+        idDaSubtarefa
+      );
 
       return;
 
@@ -579,7 +619,7 @@ export default function ProjectActions({
 
     const confirmar =
       window.confirm(
-        'Deseja realmente excluir esta subtarefa?'
+        `Deseja realmente excluir a subtarefa "${subtarefaExcluida.title}"?`
       );
 
 
@@ -593,7 +633,45 @@ export default function ProjectActions({
 
 
     /* --------------------------------------------------------
-       REGISTRA NO HISTÓRICO
+       NOVA LISTA
+       -------------------------------------------------------- */
+
+    const novaListaDeTarefas =
+      tarefas.map(
+        (tarefa) =>
+
+          tarefa.id ===
+          idDaTarefa
+
+            ? {
+                ...tarefa,
+
+                subtasks:
+                  (
+                    tarefa.subtasks ??
+                    []
+                  ).filter(
+                    (subtarefa) =>
+                      subtarefa.id !==
+                      idDaSubtarefa
+                  ),
+              }
+
+            : tarefa
+      );
+
+
+    /* --------------------------------------------------------
+       PRIMEIRO REMOVE
+       -------------------------------------------------------- */
+
+    aoAlterarTarefas(
+      novaListaDeTarefas
+    );
+
+
+    /* --------------------------------------------------------
+       DEPOIS REGISTRA NO HISTÓRICO
        -------------------------------------------------------- */
 
     aoRegistrarHistorico({
@@ -627,40 +705,6 @@ export default function ProjectActions({
       },
 
     });
-
-
-    /* --------------------------------------------------------
-       REMOVE A SUBTAREFA
-       -------------------------------------------------------- */
-
-    const novaListaDeTarefas =
-      tarefas.map(
-        (tarefa) =>
-
-          tarefa.id ===
-          idDaTarefa
-
-            ? {
-                ...tarefa,
-
-                subtasks:
-                  (
-                    tarefa.subtasks ??
-                    []
-                  ).filter(
-                    (subtarefa) =>
-                      subtarefa.id !==
-                      idDaSubtarefa
-                  ),
-              }
-
-            : tarefa
-      );
-
-
-    aoAlterarTarefas(
-      novaListaDeTarefas
-    );
 
   }
 
@@ -786,10 +830,6 @@ export default function ProjectActions({
             .
           </p>
 
-
-          {/* ==================================================
-              RESUMO
-              ================================================== */}
 
           <div
             className="
@@ -948,10 +988,6 @@ export default function ProjectActions({
             (tarefa) => {
 
 
-              /* ===============================================
-                 ESTADO DA TAREFA
-                 =============================================== */
-
               const expandida =
                 tarefasExpandidas.includes(
                   tarefa.id
@@ -1010,9 +1046,7 @@ export default function ProjectActions({
                   >
 
 
-                    {/* =========================================
-                        EXPANDIR
-                        ========================================= */}
+                    {/* EXPANDIR */}
 
                     <button
                       type="button"
@@ -1056,9 +1090,7 @@ export default function ProjectActions({
                     </button>
 
 
-                    {/* =========================================
-                        NÚMERO
-                        ========================================= */}
+                    {/* NÚMERO */}
 
                     <div
                       className="
@@ -1079,9 +1111,7 @@ export default function ProjectActions({
                     </div>
 
 
-                    {/* =========================================
-                        NOME
-                        ========================================= */}
+                    {/* NOME */}
 
                     <div className="min-w-0 flex-1">
 
@@ -1138,9 +1168,7 @@ export default function ProjectActions({
                     </div>
 
 
-                    {/* =========================================
-                        STATUS
-                        ========================================= */}
+                    {/* STATUS */}
 
                     <div
                       className={`
@@ -1166,9 +1194,7 @@ export default function ProjectActions({
                     </div>
 
 
-                    {/* =========================================
-                        PROGRESSO
-                        ========================================= */}
+                    {/* PROGRESSO */}
 
                     <div
                       className="
@@ -1250,9 +1276,7 @@ export default function ProjectActions({
                     </div>
 
 
-                    {/* =========================================
-                        EXCLUIR
-                        ========================================= */}
+                    {/* EXCLUIR */}
 
                     <button
                       type="button"
@@ -1303,10 +1327,6 @@ export default function ProjectActions({
                       "
                     >
 
-
-                      {/* =======================================
-                          LISTA
-                          ======================================= */}
 
                       {subtarefas.length > 0 ? (
 
@@ -1553,10 +1573,6 @@ export default function ProjectActions({
                         </div>
 
                       ) : (
-
-                        /* =====================================
-                           TAREFA SEM SUBTAREFAS
-                           ===================================== */
 
                         <div
                           className="

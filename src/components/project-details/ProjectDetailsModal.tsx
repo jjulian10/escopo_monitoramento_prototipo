@@ -193,10 +193,6 @@ export default function ProjectDetailsModal({
       new Date();
 
 
-    /* --------------------------------------------------------
-       EVITA DUPLICIDADE
-       -------------------------------------------------------- */
-
     const membroJaExiste =
       (
         projetoLocal.team ??
@@ -217,10 +213,6 @@ export default function ProjectDetailsModal({
     }
 
 
-    /* --------------------------------------------------------
-       REGISTRO DO HISTÓRICO
-       -------------------------------------------------------- */
-
     const novoRegistro:
       ProjectHistoryItem = {
 
@@ -238,12 +230,6 @@ export default function ProjectDetailsModal({
       description:
         `${novoMembro.name} foi adicionado ao projeto como ${novoMembro.projectRole}.`,
 
-      /*
-       * Temporário enquanto não existe autenticação real.
-       *
-       * Futuramente:
-       * user = usuário atualmente logado.
-       */
       user:
         projetoLocal.responsible,
 
@@ -268,10 +254,6 @@ export default function ProjectDetailsModal({
 
     };
 
-
-    /* --------------------------------------------------------
-       ATUALIZA EQUIPE + HISTÓRICO
-       -------------------------------------------------------- */
 
     setProjetoLocal(
       (projetoAtual) => ({
@@ -310,11 +292,6 @@ export default function ProjectDetailsModal({
     membroRemovido: ProjectMember
   ) {
 
-
-    /* --------------------------------------------------------
-       PROTEÇÃO EXTRA — GERENTE
-       -------------------------------------------------------- */
-
     if (
       membroRemovido.projectRole ===
       'Gerente de projeto'
@@ -328,10 +305,6 @@ export default function ProjectDetailsModal({
     const agora =
       new Date();
 
-
-    /* --------------------------------------------------------
-       REGISTRO DO HISTÓRICO
-       -------------------------------------------------------- */
 
     const novoRegistro:
       ProjectHistoryItem = {
@@ -350,12 +323,6 @@ export default function ProjectDetailsModal({
       description:
         `${membroRemovido.name} foi removido da equipe do projeto.`,
 
-      /*
-       * Temporário enquanto não existe autenticação real.
-       *
-       * Futuramente:
-       * user = usuário atualmente logado.
-       */
       user:
         projetoLocal.responsible,
 
@@ -380,10 +347,6 @@ export default function ProjectDetailsModal({
 
     };
 
-
-    /* --------------------------------------------------------
-       REMOVE MEMBRO + ATUALIZA HISTÓRICO
-       -------------------------------------------------------- */
 
     setProjetoLocal(
       (projetoAtual) => ({
@@ -516,6 +479,10 @@ export default function ProjectDetailsModal({
 
           aoAlterarTarefas={
             alterarTarefas
+          }
+
+          aoRegistrarHistorico={
+            registrarHistorico
           }
         />
 
