@@ -24,6 +24,9 @@ import {
   Pencil,
   Trash2,
   UserCog,
+  UserPlus,
+  UserMinus,
+  Users,
 } from 'lucide-react';
 
 import type {
@@ -66,26 +69,50 @@ const configuracaoDosTipos: Record<
   ConfiguracaoTipoHistorico
 > = {
 
+
   /* ----------------------------------------------------------
      PROJETO
      ---------------------------------------------------------- */
 
   project_created: {
-    label: 'Projeto',
-    Icone: CirclePlus,
-    fundoIcone: 'bg-blue-50',
-    corIcone: 'text-blue-600',
-    fundoBadge: 'bg-blue-50',
-    corBadge: 'text-blue-700',
+    label:
+      'Projeto',
+
+    Icone:
+      CirclePlus,
+
+    fundoIcone:
+      'bg-blue-50',
+
+    corIcone:
+      'text-blue-600',
+
+    fundoBadge:
+      'bg-blue-50',
+
+    corBadge:
+      'text-blue-700',
   },
 
+
   project_updated: {
-    label: 'Alteração',
-    Icone: Pencil,
-    fundoIcone: 'bg-violet-50',
-    corIcone: 'text-violet-600',
-    fundoBadge: 'bg-violet-50',
-    corBadge: 'text-violet-700',
+    label:
+      'Alteração',
+
+    Icone:
+      Pencil,
+
+    fundoIcone:
+      'bg-violet-50',
+
+    corIcone:
+      'text-violet-600',
+
+    fundoBadge:
+      'bg-violet-50',
+
+    corBadge:
+      'text-violet-700',
   },
 
 
@@ -94,30 +121,65 @@ const configuracaoDosTipos: Record<
      ---------------------------------------------------------- */
 
   task_created: {
-    label: 'Tarefa',
-    Icone: ListChecks,
-    fundoIcone: 'bg-emerald-50',
-    corIcone: 'text-emerald-600',
-    fundoBadge: 'bg-emerald-50',
-    corBadge: 'text-emerald-700',
+    label:
+      'Tarefa',
+
+    Icone:
+      ListChecks,
+
+    fundoIcone:
+      'bg-emerald-50',
+
+    corIcone:
+      'text-emerald-600',
+
+    fundoBadge:
+      'bg-emerald-50',
+
+    corBadge:
+      'text-emerald-700',
   },
+
 
   task_updated: {
-    label: 'Tarefa',
-    Icone: Pencil,
-    fundoIcone: 'bg-amber-50',
-    corIcone: 'text-amber-600',
-    fundoBadge: 'bg-amber-50',
-    corBadge: 'text-amber-700',
+    label:
+      'Tarefa',
+
+    Icone:
+      Pencil,
+
+    fundoIcone:
+      'bg-amber-50',
+
+    corIcone:
+      'text-amber-600',
+
+    fundoBadge:
+      'bg-amber-50',
+
+    corBadge:
+      'text-amber-700',
   },
 
+
   task_deleted: {
-    label: 'Exclusão',
-    Icone: Trash2,
-    fundoIcone: 'bg-red-50',
-    corIcone: 'text-red-600',
-    fundoBadge: 'bg-red-50',
-    corBadge: 'text-red-700',
+    label:
+      'Exclusão',
+
+    Icone:
+      Trash2,
+
+    fundoIcone:
+      'bg-red-50',
+
+    corIcone:
+      'text-red-600',
+
+    fundoBadge:
+      'bg-red-50',
+
+    corBadge:
+      'text-red-700',
   },
 
 
@@ -126,30 +188,65 @@ const configuracaoDosTipos: Record<
      ---------------------------------------------------------- */
 
   subtask_created: {
-    label: 'Subtarefa',
-    Icone: ListChecks,
-    fundoIcone: 'bg-teal-50',
-    corIcone: 'text-teal-600',
-    fundoBadge: 'bg-teal-50',
-    corBadge: 'text-teal-700',
+    label:
+      'Subtarefa',
+
+    Icone:
+      ListChecks,
+
+    fundoIcone:
+      'bg-teal-50',
+
+    corIcone:
+      'text-teal-600',
+
+    fundoBadge:
+      'bg-teal-50',
+
+    corBadge:
+      'text-teal-700',
   },
+
 
   subtask_updated: {
-    label: 'Subtarefa',
-    Icone: Pencil,
-    fundoIcone: 'bg-orange-50',
-    corIcone: 'text-orange-600',
-    fundoBadge: 'bg-orange-50',
-    corBadge: 'text-orange-700',
+    label:
+      'Subtarefa',
+
+    Icone:
+      Pencil,
+
+    fundoIcone:
+      'bg-orange-50',
+
+    corIcone:
+      'text-orange-600',
+
+    fundoBadge:
+      'bg-orange-50',
+
+    corBadge:
+      'text-orange-700',
   },
 
+
   subtask_deleted: {
-    label: 'Exclusão',
-    Icone: Trash2,
-    fundoIcone: 'bg-red-50',
-    corIcone: 'text-red-600',
-    fundoBadge: 'bg-red-50',
-    corBadge: 'text-red-700',
+    label:
+      'Exclusão',
+
+    Icone:
+      Trash2,
+
+    fundoIcone:
+      'bg-red-50',
+
+    corIcone:
+      'text-red-600',
+
+    fundoBadge:
+      'bg-red-50',
+
+    corBadge:
+      'text-red-700',
   },
 
 
@@ -158,12 +255,23 @@ const configuracaoDosTipos: Record<
      ---------------------------------------------------------- */
 
   status_changed: {
-    label: 'Kanban',
-    Icone: ArrowRightLeft,
-    fundoIcone: 'bg-cyan-50',
-    corIcone: 'text-cyan-600',
-    fundoBadge: 'bg-cyan-50',
-    corBadge: 'text-cyan-700',
+    label:
+      'Kanban',
+
+    Icone:
+      ArrowRightLeft,
+
+    fundoIcone:
+      'bg-cyan-50',
+
+    corIcone:
+      'text-cyan-600',
+
+    fundoBadge:
+      'bg-cyan-50',
+
+    corBadge:
+      'text-cyan-700',
   },
 
 
@@ -172,12 +280,23 @@ const configuracaoDosTipos: Record<
      ---------------------------------------------------------- */
 
   progress_changed: {
-    label: 'Progresso',
-    Icone: CheckCircle2,
-    fundoIcone: 'bg-green-50',
-    corIcone: 'text-green-600',
-    fundoBadge: 'bg-green-50',
-    corBadge: 'text-green-700',
+    label:
+      'Progresso',
+
+    Icone:
+      CheckCircle2,
+
+    fundoIcone:
+      'bg-green-50',
+
+    corIcone:
+      'text-green-600',
+
+    fundoBadge:
+      'bg-green-50',
+
+    corBadge:
+      'text-green-700',
   },
 
 
@@ -186,12 +305,23 @@ const configuracaoDosTipos: Record<
      ---------------------------------------------------------- */
 
   responsible_changed: {
-    label: 'Responsável',
-    Icone: UserCog,
-    fundoIcone: 'bg-sky-50',
-    corIcone: 'text-sky-600',
-    fundoBadge: 'bg-sky-50',
-    corBadge: 'text-sky-700',
+    label:
+      'Responsável',
+
+    Icone:
+      UserCog,
+
+    fundoIcone:
+      'bg-sky-50',
+
+    corIcone:
+      'text-sky-600',
+
+    fundoBadge:
+      'bg-sky-50',
+
+    corBadge:
+      'text-sky-700',
   },
 
 
@@ -200,21 +330,111 @@ const configuracaoDosTipos: Record<
      ---------------------------------------------------------- */
 
   tag_added: {
-    label: 'Etiqueta',
-    Icone: Tag,
-    fundoIcone: 'bg-purple-50',
-    corIcone: 'text-purple-600',
-    fundoBadge: 'bg-purple-50',
-    corBadge: 'text-purple-700',
+    label:
+      'Etiqueta',
+
+    Icone:
+      Tag,
+
+    fundoIcone:
+      'bg-purple-50',
+
+    corIcone:
+      'text-purple-600',
+
+    fundoBadge:
+      'bg-purple-50',
+
+    corBadge:
+      'text-purple-700',
   },
 
+
   tag_removed: {
-    label: 'Etiqueta',
-    Icone: Tag,
-    fundoIcone: 'bg-slate-100',
-    corIcone: 'text-slate-600',
-    fundoBadge: 'bg-slate-100',
-    corBadge: 'text-slate-700',
+    label:
+      'Etiqueta',
+
+    Icone:
+      Tag,
+
+    fundoIcone:
+      'bg-slate-100',
+
+    corIcone:
+      'text-slate-600',
+
+    fundoBadge:
+      'bg-slate-100',
+
+    corBadge:
+      'text-slate-700',
+  },
+
+
+  /* ----------------------------------------------------------
+     EQUIPE
+     ---------------------------------------------------------- */
+
+  team_member_added: {
+    label:
+      'Equipe',
+
+    Icone:
+      UserPlus,
+
+    fundoIcone:
+      'bg-emerald-50',
+
+    corIcone:
+      'text-emerald-600',
+
+    fundoBadge:
+      'bg-emerald-50',
+
+    corBadge:
+      'text-emerald-700',
+  },
+
+
+  team_member_updated: {
+    label:
+      'Equipe',
+
+    Icone:
+      UserCog,
+
+    fundoIcone:
+      'bg-blue-50',
+
+    corIcone:
+      'text-blue-600',
+
+    fundoBadge:
+      'bg-blue-50',
+
+    corBadge:
+      'text-blue-700',
+  },
+
+
+  team_member_removed: {
+    label:
+      'Equipe',
+
+    Icone:
+      UserMinus,
+
+    fundoIcone:
+      'bg-red-50',
+
+    corIcone:
+      'text-red-600',
+
+    fundoBadge:
+      'bg-red-50',
+
+    corBadge:
+      'text-red-700',
   },
 
 };
@@ -229,7 +449,8 @@ type FiltroHistorico =
   | 'projeto'
   | 'tarefas'
   | 'kanban'
-  | 'etiquetas';
+  | 'etiquetas'
+  | 'equipe';
 
 
 /* ============================================================
@@ -251,20 +472,28 @@ function formatarData(
       data.getTime()
     )
   ) {
+
     return createdAt;
+
   }
 
 
   return new Intl.DateTimeFormat(
     'pt-BR',
     {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
+      day:
+        '2-digit',
+
+      month:
+        '2-digit',
+
+      year:
+        'numeric',
     }
   ).format(
     data
   );
+
 }
 
 
@@ -287,19 +516,25 @@ function formatarHorario(
       data.getTime()
     )
   ) {
+
     return '';
+
   }
 
 
   return new Intl.DateTimeFormat(
     'pt-BR',
     {
-      hour: '2-digit',
-      minute: '2-digit',
+      hour:
+        '2-digit',
+
+      minute:
+        '2-digit',
     }
   ).format(
     data
   );
+
 }
 
 
@@ -314,8 +549,10 @@ function obterEntidade(
   return (
     item.metadata?.subtaskTitle ??
     item.metadata?.taskTitle ??
+    item.metadata?.memberName ??
     null
   );
+
 }
 
 
@@ -417,6 +654,30 @@ export default function ProjectHistory({
               '';
 
 
+            const membro =
+              item.metadata
+                ?.memberName ??
+              '';
+
+
+            const papelAnterior =
+              item.metadata
+                ?.previousRole ??
+              '';
+
+
+            const novoPapel =
+              item.metadata
+                ?.newRole ??
+              '';
+
+
+            const perfilSistema =
+              item.metadata
+                ?.systemProfile ??
+              '';
+
+
             /* --------------------------------------------------
                PESQUISA
                -------------------------------------------------- */
@@ -426,27 +687,63 @@ export default function ProjectHistory({
 
               item.title
                 .toLowerCase()
-                .includes(termo) ||
+                .includes(
+                  termo
+                ) ||
 
               item.description
                 .toLowerCase()
-                .includes(termo) ||
+                .includes(
+                  termo
+                ) ||
 
               item.user
                 .toLowerCase()
-                .includes(termo) ||
+                .includes(
+                  termo
+                ) ||
 
               entidade
                 ?.toLowerCase()
-                .includes(termo) ||
+                .includes(
+                  termo
+                ) ||
 
               valorAnterior
                 .toLowerCase()
-                .includes(termo) ||
+                .includes(
+                  termo
+                ) ||
 
               novoValor
                 .toLowerCase()
-                .includes(termo);
+                .includes(
+                  termo
+                ) ||
+
+              membro
+                .toLowerCase()
+                .includes(
+                  termo
+                ) ||
+
+              papelAnterior
+                .toLowerCase()
+                .includes(
+                  termo
+                ) ||
+
+              novoPapel
+                .toLowerCase()
+                .includes(
+                  termo
+                ) ||
+
+              perfilSistema
+                .toLowerCase()
+                .includes(
+                  termo
+                );
 
 
             /* --------------------------------------------------
@@ -540,6 +837,26 @@ export default function ProjectHistory({
             }
 
 
+            /* EQUIPE */
+
+            if (
+              filtro ===
+              'equipe'
+            ) {
+
+              correspondeFiltro =
+                item.type ===
+                  'team_member_added' ||
+
+                item.type ===
+                  'team_member_updated' ||
+
+                item.type ===
+                  'team_member_removed';
+
+            }
+
+
             return (
               correspondePesquisa &&
               correspondeFiltro
@@ -600,6 +917,22 @@ export default function ProjectHistory({
 
         item.type ===
           'responsible_changed'
+
+    ).length;
+
+
+  const alteracoesDeEquipe =
+    historico.filter(
+      (item) =>
+
+        item.type ===
+          'team_member_added' ||
+
+        item.type ===
+          'team_member_updated' ||
+
+        item.type ===
+          'team_member_removed'
 
     ).length;
 
@@ -793,6 +1126,37 @@ export default function ProjectHistory({
 
           </div>
 
+
+          <div className="h-8 w-px bg-gray-200" />
+
+
+          <div>
+
+            <p
+              className="
+                text-[10px]
+                font-semibold
+                uppercase
+                tracking-wide
+                text-gray-400
+              "
+            >
+              Equipe
+            </p>
+
+            <p
+              className="
+                mt-0.5
+                text-lg
+                font-bold
+                text-emerald-600
+              "
+            >
+              {alteracoesDeEquipe}
+            </p>
+
+          </div>
+
         </div>
 
       </div>
@@ -934,21 +1298,30 @@ export default function ProjectHistory({
               'todos',
               'Todos',
             ],
+
             [
               'projeto',
               'Projeto',
             ],
+
             [
               'tarefas',
               'Tarefas',
             ],
+
             [
               'kanban',
               'Kanban',
             ],
+
             [
               'etiquetas',
               'Etiquetas',
+            ],
+
+            [
+              'equipe',
+              'Equipe',
             ],
           ] as Array<
             [
@@ -1092,10 +1465,6 @@ export default function ProjectHistory({
         </div>
 
 
-        {/* ====================================================
-            ESTADO VAZIO
-            ==================================================== */}
-
         {historicoFiltrado.length === 0 ? (
 
           <div
@@ -1159,10 +1528,6 @@ export default function ProjectHistory({
 
         ) : (
 
-          /* ===================================================
-             TIMELINE
-             =================================================== */
-
           <div className="px-5">
 
             {historicoFiltrado.map(
@@ -1225,6 +1590,21 @@ function ItemDoHistorico({
     ];
 
 
+  /*
+   * Fallback de segurança.
+   *
+   * Caso futuramente seja criado um novo tipo de histórico e
+   * alguém esqueça de adicioná-lo na configuração visual,
+   * a tela não ficará branca.
+   */
+
+  if (!configuracao) {
+
+    return null;
+
+  }
+
+
   const Icone =
     configuracao.Icone;
 
@@ -1241,6 +1621,16 @@ function ItemDoHistorico({
   const novoValor =
     item.metadata
       ?.newValue;
+
+
+  const papelAnterior =
+    item.metadata
+      ?.previousRole;
+
+
+  const novoPapel =
+    item.metadata
+      ?.newRole;
 
 
   const entidade =
@@ -1276,10 +1666,6 @@ function ItemDoHistorico({
       "
     >
 
-
-      {/* ======================================================
-          LINHA DA TIMELINE
-          ====================================================== */}
 
       {!ultimo && (
 
@@ -1411,10 +1797,6 @@ function ItemDoHistorico({
           </div>
 
 
-          {/* ==================================================
-              DATA / HORÁRIO
-              ================================================== */}
-
           <div
             className="
               flex
@@ -1455,7 +1837,7 @@ function ItemDoHistorico({
 
 
         {/* ====================================================
-            ALTERAÇÃO DE VALOR
+            ALTERAÇÃO NORMAL
             ==================================================== */}
 
         {(
@@ -1479,9 +1861,6 @@ function ItemDoHistorico({
             "
           >
 
-
-            {/* VALOR ANTERIOR */}
-
             {valorAnterior && (
 
               <span
@@ -1503,8 +1882,6 @@ function ItemDoHistorico({
             )}
 
 
-            {/* SETA */}
-
             {valorAnterior &&
               novoValor && (
 
@@ -1518,8 +1895,6 @@ function ItemDoHistorico({
 
               )}
 
-
-            {/* NOVO VALOR */}
 
             {novoValor && (
 
@@ -1547,6 +1922,91 @@ function ItemDoHistorico({
 
 
         {/* ====================================================
+            ALTERAÇÃO DE PAPEL DA EQUIPE
+            ==================================================== */}
+
+        {(
+          papelAnterior ||
+          novoPapel
+        ) && (
+
+          <div
+            className="
+              mt-3
+              flex
+              flex-wrap
+              items-center
+              gap-2
+              rounded-lg
+              border
+              border-gray-100
+              bg-slate-50
+              px-3
+              py-2.5
+            "
+          >
+
+            {papelAnterior && (
+
+              <span
+                className="
+                  rounded-md
+                  border
+                  border-gray-200
+                  bg-white
+                  px-2.5
+                  py-1
+                  text-xs
+                  font-medium
+                  text-gray-500
+                "
+              >
+                {papelAnterior}
+              </span>
+
+            )}
+
+
+            {papelAnterior &&
+              novoPapel && (
+
+                <ArrowRight
+                  className="
+                    h-4
+                    w-4
+                    text-gray-300
+                  "
+                />
+
+              )}
+
+
+            {novoPapel && (
+
+              <span
+                className="
+                  rounded-md
+                  border
+                  border-emerald-100
+                  bg-emerald-50
+                  px-2.5
+                  py-1
+                  text-xs
+                  font-semibold
+                  text-emerald-700
+                "
+              >
+                {novoPapel}
+              </span>
+
+            )}
+
+          </div>
+
+        )}
+
+
+        {/* ====================================================
             RODAPÉ
             ==================================================== */}
 
@@ -1560,9 +2020,6 @@ function ItemDoHistorico({
             gap-y-2
           "
         >
-
-
-          {/* USUÁRIO */}
 
           <div
             className="
@@ -1592,8 +2049,6 @@ function ItemDoHistorico({
           </div>
 
 
-          {/* ENTIDADE */}
-
           {entidade && (
 
             <div
@@ -1607,7 +2062,18 @@ function ItemDoHistorico({
               "
             >
 
-              <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0" />
+              {item.type.startsWith(
+                'team_member_'
+              ) ? (
+
+                <Users className="h-3.5 w-3.5 flex-shrink-0" />
+
+              ) : (
+
+                <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0" />
+
+              )}
+
 
               <span className="truncate">
                 {entidade}

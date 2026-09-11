@@ -47,6 +47,66 @@ export type AccessLevel =
 
 
 // =========================================================
+// PERFIS DO SISTEMA
+// =========================================================
+
+export type SystemProfile =
+  | 'Sys Admin'
+  | 'User'
+  | 'Coordenador'
+  | 'Gestores';
+
+
+// =========================================================
+// PAPEL DO USUÁRIO DENTRO DO PROJETO
+// =========================================================
+
+export type ProjectRole =
+  | 'Gerente de projeto'
+  | 'Membro da Equipe';
+
+
+// =========================================================
+// INTERFACE: MEMBRO DA EQUIPE
+// =========================================================
+
+export interface ProjectMember {
+  /*
+   * Identificador interno do usuário.
+   *
+   * No protótipo utilizamos IDs locais.
+   * Futuramente deverá corresponder ao ID do usuário
+   * retornado pelo backend.
+   */
+  id: string;
+
+  // Nome do servidor / usuário
+  name: string;
+
+  /*
+   * Unidade organizacional.
+   *
+   * Exemplos:
+   * GSERV
+   * Coordenação de Infraestrutura de TI
+   * Gerência de Governança
+   */
+  unit?: string;
+
+  /*
+   * Perfil global que o usuário possui no SCOPE.
+   */
+  systemProfile: SystemProfile;
+
+  /*
+   * Papel que o usuário possui especificamente
+   * dentro deste projeto.
+   */
+  projectRole: ProjectRole;
+}
+
+
+// =========================================================
 // TIPO DA TAREFA / SUBTAREFA
 // =========================================================
 
@@ -57,7 +117,7 @@ export type ProjectTaskType =
   | 'Desenvolvimento';
 
 
-  // =========================================================
+// =========================================================
 // COMPROVAÇÃO DE CONCLUSÃO
 // =========================================================
 
@@ -86,17 +146,26 @@ export interface ProjectCompletionEvidence {
 export type ProjectHistoryType =
   | 'project_created'
   | 'project_updated'
+
   | 'task_created'
   | 'task_updated'
   | 'task_deleted'
+
   | 'subtask_created'
   | 'subtask_updated'
   | 'subtask_deleted'
+
   | 'status_changed'
   | 'progress_changed'
   | 'responsible_changed'
+
   | 'tag_added'
-  | 'tag_removed';
+  | 'tag_removed'
+
+  // Equipe
+  | 'team_member_added'
+  | 'team_member_updated'
+  | 'team_member_removed';
 
 
 // =========================================================
@@ -134,6 +203,21 @@ export interface ProjectHistoryItem {
     taskTitle?: string;
 
     subtaskTitle?: string;
+
+
+    // =====================================================
+    // EQUIPE
+    // =====================================================
+
+    memberId?: string;
+
+    memberName?: string;
+
+    previousRole?: ProjectRole;
+
+    newRole?: ProjectRole;
+
+    systemProfile?: SystemProfile;
   };
 }
 
@@ -170,7 +254,7 @@ export interface ProjectSubtask {
   type?: ProjectTaskType;
 
   // Comprovação de conclusão
-completion?: ProjectCompletionEvidence;
+  completion?: ProjectCompletionEvidence;
 }
 
 
@@ -277,6 +361,21 @@ export interface Project {
 
   // Grupo responsável pelo projeto
   managerGroup?: string;
+
+
+  // =======================================================
+  // EQUIPE DO PROJETO
+  // =======================================================
+
+  /*
+   * Usuários vinculados diretamente ao projeto.
+   *
+   * Cada usuário possui:
+   *
+   * - perfil global no SCOPE;
+   * - papel específico dentro deste projeto.
+   */
+  team?: ProjectMember[];
 
 
   // =======================================================
@@ -440,15 +539,90 @@ export const projects: Project[] = [
       'Prioridade',
     ],
 
-    status: 'Atrasado',
+    status:
+      'Atrasado',
 
-    progress: 67,
+    progress:
+      67,
 
     deliveryDate:
       '30/09/2025',
 
     responsible:
       'João Silva',
+
+
+    // =====================================================
+    // GERENTE
+    // =====================================================
+
+    managerUser:
+      'João Silva',
+
+    managerGroup:
+      'Coordenação de Infraestrutura de TI',
+
+
+    // =====================================================
+    // EQUIPE
+    // =====================================================
+
+    team: [
+
+      {
+        id:
+          'user-joao-silva',
+
+        name:
+          'João Silva',
+
+        unit:
+          'Coordenação de Infraestrutura de TI',
+
+        systemProfile:
+          'User',
+
+        projectRole:
+          'Gerente de projeto',
+      },
+
+
+      {
+        id:
+          'user-maria-souza',
+
+        name:
+          'Maria Souza',
+
+        unit:
+          'Coordenação de Infraestrutura de TI',
+
+        systemProfile:
+          'User',
+
+        projectRole:
+          'Membro da Equipe',
+      },
+
+
+      {
+        id:
+          'user-carlos-lima',
+
+        name:
+          'Carlos Lima',
+
+        unit:
+          'Coordenação de Infraestrutura de TI',
+
+        systemProfile:
+          'Coordenador',
+
+        projectRole:
+          'Membro da Equipe',
+      },
+
+    ],
 
 
     // =====================================================
@@ -462,9 +636,11 @@ export const projects: Project[] = [
       // ---------------------------------------------------
 
       {
-        id: 'task-1-1',
+        id:
+          'task-1-1',
 
-        order: 1,
+        order:
+          1,
 
         title:
           'Diagnóstico e Levantamento de Ativos de TI',
@@ -476,7 +652,8 @@ export const projects: Project[] = [
           'Prioridade',
         ],
 
-        progress: 80,
+        progress:
+          80,
 
         responsible:
           'João Silva',
@@ -488,11 +665,13 @@ export const projects: Project[] = [
           'Documentação',
 
         subtasks: [
+
           {
             id:
               'subtask-1-1-1',
 
-            order: 1,
+            order:
+              1,
 
             title:
               'Inventário dos servidores e equipamentos de rede',
@@ -500,7 +679,8 @@ export const projects: Project[] = [
             status:
               'Concluído',
 
-            progress: 100,
+            progress:
+              100,
 
             responsible:
               'João Silva',
@@ -514,11 +694,13 @@ export const projects: Project[] = [
               'Documentação',
           },
 
+
           {
             id:
               'subtask-1-1-2',
 
-            order: 2,
+            order:
+              2,
 
             title:
               'Elaboração do relatório técnico preliminar',
@@ -526,7 +708,8 @@ export const projects: Project[] = [
             status:
               'Em andamento',
 
-            progress: 70,
+            progress:
+              70,
 
             responsible:
               'João Silva',
@@ -541,6 +724,7 @@ export const projects: Project[] = [
             type:
               'Documentação',
           },
+
         ],
       },
 
@@ -550,9 +734,11 @@ export const projects: Project[] = [
       // ---------------------------------------------------
 
       {
-        id: 'task-1-2',
+        id:
+          'task-1-2',
 
-        order: 2,
+        order:
+          2,
 
         title:
           'Execução da Migração de Infraestrutura',
@@ -564,7 +750,8 @@ export const projects: Project[] = [
           'Dependência de terceiros',
         ],
 
-        progress: 20,
+        progress:
+          20,
 
         responsible:
           'Maria Souza',
@@ -576,11 +763,13 @@ export const projects: Project[] = [
           'Desenvolvimento',
 
         subtasks: [
+
           {
             id:
               'subtask-1-2-1',
 
-            order: 1,
+            order:
+              1,
 
             title:
               'Substituição dos switches core do datacenter',
@@ -588,7 +777,8 @@ export const projects: Project[] = [
             status:
               'Não iniciado',
 
-            progress: 0,
+            progress:
+              0,
 
             responsible:
               'Maria Souza',
@@ -603,6 +793,7 @@ export const projects: Project[] = [
             type:
               'Parametrização',
           },
+
         ],
       },
 
@@ -612,9 +803,11 @@ export const projects: Project[] = [
       // ---------------------------------------------------
 
       {
-        id: 'task-1-3',
+        id:
+          'task-1-3',
 
-        order: 3,
+        order:
+          3,
 
         title:
           'Validação e Homologação da Infraestrutura',
@@ -624,7 +817,8 @@ export const projects: Project[] = [
 
         tags: [],
 
-        progress: 60,
+        progress:
+          60,
 
         responsible:
           'Carlos Lima',
@@ -636,11 +830,13 @@ export const projects: Project[] = [
           'Parametrização',
 
         subtasks: [
+
           {
             id:
               'subtask-1-3-1',
 
-            order: 1,
+            order:
+              1,
 
             title:
               'Validação técnica do ambiente',
@@ -648,7 +844,8 @@ export const projects: Project[] = [
             status:
               'Homologação',
 
-            progress: 60,
+            progress:
+              60,
 
             responsible:
               'Carlos Lima',
@@ -661,8 +858,10 @@ export const projects: Project[] = [
             type:
               'Parametrização',
           },
+
         ],
       },
+
     ],
 
 
@@ -671,8 +870,10 @@ export const projects: Project[] = [
     // =====================================================
 
     history: [
+
       {
-        id: 'history-1',
+        id:
+          'history-1',
 
         type:
           'status_changed',
@@ -704,8 +905,10 @@ export const projects: Project[] = [
         },
       },
 
+
       {
-        id: 'history-2',
+        id:
+          'history-2',
 
         type:
           'progress_changed',
@@ -737,8 +940,10 @@ export const projects: Project[] = [
         },
       },
 
+
       {
-        id: 'history-3',
+        id:
+          'history-3',
 
         type:
           'task_created',
@@ -764,8 +969,10 @@ export const projects: Project[] = [
         },
       },
 
+
       {
-        id: 'history-4',
+        id:
+          'history-4',
 
         type:
           'tag_added',
@@ -794,8 +1001,10 @@ export const projects: Project[] = [
         },
       },
 
+
       {
-        id: 'history-5',
+        id:
+          'history-5',
 
         type:
           'project_created',
@@ -812,6 +1021,7 @@ export const projects: Project[] = [
         createdAt:
           '2026-09-05T10:00:00',
       },
+
     ],
   },
 
@@ -821,7 +1031,8 @@ export const projects: Project[] = [
   // -------------------------------------------------------
 
   {
-    id: '2',
+    id:
+      '2',
 
     code:
       'PROJ-02',
@@ -846,6 +1057,7 @@ export const projects: Project[] = [
       'Maria Souza',
 
     tasks: [
+
       {
         id:
           'task-2-1',
@@ -868,6 +1080,7 @@ export const projects: Project[] = [
         tags: [],
 
         subtasks: [
+
           {
             id:
               'subtask-2-1-1',
@@ -890,6 +1103,7 @@ export const projects: Project[] = [
             tags: [],
           },
 
+
           {
             id:
               'subtask-2-1-2',
@@ -911,8 +1125,10 @@ export const projects: Project[] = [
 
             tags: [],
           },
+
         ],
       },
+
 
       {
         id:
@@ -938,6 +1154,7 @@ export const projects: Project[] = [
         ],
 
         subtasks: [
+
           {
             id:
               'subtask-2-2-1',
@@ -959,11 +1176,14 @@ export const projects: Project[] = [
 
             tags: [],
           },
+
         ],
       },
+
     ],
 
     history: [
+
       {
         id:
           'history-2-1',
@@ -983,6 +1203,7 @@ export const projects: Project[] = [
         createdAt:
           '2026-08-20T09:00:00',
       },
+
     ],
   },
 
@@ -1016,6 +1237,7 @@ export const projects: Project[] = [
       'Carlos Lima',
 
     tasks: [
+
       {
         id:
           'task-3-1',
@@ -1038,6 +1260,7 @@ export const projects: Project[] = [
         tags: [],
 
         subtasks: [
+
           {
             id:
               'subtask-3-1-1',
@@ -1059,8 +1282,10 @@ export const projects: Project[] = [
 
             tags: [],
           },
+
         ],
       },
+
 
       {
         id:
@@ -1088,9 +1313,11 @@ export const projects: Project[] = [
         type:
           'Desenvolvimento',
       },
+
     ],
 
     history: [
+
       {
         id:
           'history-3-1',
@@ -1110,6 +1337,7 @@ export const projects: Project[] = [
         createdAt:
           '2026-08-12T11:30:00',
       },
+
     ],
   },
 
@@ -1143,6 +1371,7 @@ export const projects: Project[] = [
       'Ana Costa',
 
     tasks: [
+
       {
         id:
           'task-4-1',
@@ -1165,6 +1394,7 @@ export const projects: Project[] = [
         tags: [],
 
         subtasks: [
+
           {
             id:
               'subtask-4-1-1',
@@ -1187,6 +1417,7 @@ export const projects: Project[] = [
             tags: [],
           },
 
+
           {
             id:
               'subtask-4-1-2',
@@ -1208,11 +1439,14 @@ export const projects: Project[] = [
 
             tags: [],
           },
+
         ],
       },
+
     ],
 
     history: [
+
       {
         id:
           'history-4-1',
@@ -1232,6 +1466,7 @@ export const projects: Project[] = [
         createdAt:
           '2026-07-01T08:30:00',
       },
+
 
       {
         id:
@@ -1260,8 +1495,10 @@ export const projects: Project[] = [
             'Concluído',
         },
       },
+
     ],
   },
+
 ];
 
 
@@ -1305,6 +1542,7 @@ export const sharedProjects: Project[] = [
       'Colaborador',
 
     tasks: [
+
       {
         id:
           'task-5-1',
@@ -1328,9 +1566,11 @@ export const sharedProjects: Project[] = [
           'Prioridade',
         ],
       },
+
     ],
 
     history: [
+
       {
         id:
           'history-5-1',
@@ -1350,6 +1590,7 @@ export const sharedProjects: Project[] = [
         createdAt:
           '2026-08-01T09:00:00',
       },
+
     ],
   },
 
@@ -1388,6 +1629,7 @@ export const sharedProjects: Project[] = [
       'Editor',
 
     tasks: [
+
       {
         id:
           'task-6-1',
@@ -1411,9 +1653,11 @@ export const sharedProjects: Project[] = [
           'Dependência de terceiros',
         ],
       },
+
     ],
 
     history: [
+
       {
         id:
           'history-6-1',
@@ -1433,6 +1677,7 @@ export const sharedProjects: Project[] = [
         createdAt:
           '2026-08-05T10:20:00',
       },
+
     ],
   },
 
@@ -1469,6 +1714,7 @@ export const sharedProjects: Project[] = [
       'Visualizador',
 
     tasks: [
+
       {
         id:
           'task-7-1',
@@ -1490,9 +1736,11 @@ export const sharedProjects: Project[] = [
 
         tags: [],
       },
+
     ],
 
     history: [
+
       {
         id:
           'history-7-1',
@@ -1512,8 +1760,10 @@ export const sharedProjects: Project[] = [
         createdAt:
           '2026-08-10T14:00:00',
       },
+
     ],
   },
+
 ];
 
 
@@ -1531,6 +1781,7 @@ export const summaryCardsByTab: Record<
   // -------------------------------------------------------
 
   mine: [
+
     {
       id:
         'total',
@@ -1547,6 +1798,7 @@ export const summaryCardsByTab: Record<
       color:
         'blue',
     },
+
 
     {
       id:
@@ -1565,6 +1817,7 @@ export const summaryCardsByTab: Record<
         'amber',
     },
 
+
     {
       id:
         'done',
@@ -1582,6 +1835,7 @@ export const summaryCardsByTab: Record<
         'green',
     },
 
+
     {
       id:
         'late',
@@ -1598,6 +1852,7 @@ export const summaryCardsByTab: Record<
       color:
         'red',
     },
+
   ],
 
 
@@ -1606,6 +1861,7 @@ export const summaryCardsByTab: Record<
   // -------------------------------------------------------
 
   shared: [
+
     {
       id:
         'total',
@@ -1622,6 +1878,7 @@ export const summaryCardsByTab: Record<
       color:
         'blue',
     },
+
 
     {
       id:
@@ -1640,6 +1897,7 @@ export const summaryCardsByTab: Record<
         'amber',
     },
 
+
     {
       id:
         'done',
@@ -1657,6 +1915,7 @@ export const summaryCardsByTab: Record<
         'green',
     },
 
+
     {
       id:
         'late',
@@ -1673,6 +1932,7 @@ export const summaryCardsByTab: Record<
       color:
         'red',
     },
+
   ],
 
 
@@ -1681,6 +1941,7 @@ export const summaryCardsByTab: Record<
   // -------------------------------------------------------
 
   strategic: [
+
     {
       id:
         'total',
@@ -1697,6 +1958,7 @@ export const summaryCardsByTab: Record<
       color:
         'blue',
     },
+
 
     {
       id:
@@ -1715,6 +1977,7 @@ export const summaryCardsByTab: Record<
         'amber',
     },
 
+
     {
       id:
         'done',
@@ -1732,6 +1995,7 @@ export const summaryCardsByTab: Record<
         'green',
     },
 
+
     {
       id:
         'late',
@@ -1748,7 +2012,9 @@ export const summaryCardsByTab: Record<
       color:
         'red',
     },
+
   ],
+
 };
 
 
@@ -1779,6 +2045,7 @@ export const strategicAxes: StrategicAxis[] = [
       3,
 
     projects: [
+
       {
         code:
           'PROJ-10',
@@ -1795,6 +2062,7 @@ export const strategicAxes: StrategicAxis[] = [
         responsible:
           'Paulo Mendes',
       },
+
 
       {
         code:
@@ -1813,6 +2081,7 @@ export const strategicAxes: StrategicAxis[] = [
           'Lucia Ferreira',
       },
 
+
       {
         code:
           'PROJ-12',
@@ -1829,6 +2098,7 @@ export const strategicAxes: StrategicAxis[] = [
         responsible:
           'Roberto Alves',
       },
+
     ],
   },
 
@@ -1854,6 +2124,7 @@ export const strategicAxes: StrategicAxis[] = [
       7,
 
     projects: [
+
       {
         code:
           'PROJ-20',
@@ -1870,6 +2141,7 @@ export const strategicAxes: StrategicAxis[] = [
         responsible:
           'Fernanda Costa',
       },
+
 
       {
         code:
@@ -1888,6 +2160,7 @@ export const strategicAxes: StrategicAxis[] = [
           'Rafael Oliveira',
       },
 
+
       {
         code:
           'PROJ-22',
@@ -1905,6 +2178,7 @@ export const strategicAxes: StrategicAxis[] = [
           'Amanda Souza',
       },
 
+
       {
         code:
           'PROJ-23',
@@ -1921,6 +2195,7 @@ export const strategicAxes: StrategicAxis[] = [
         responsible:
           'Carlos Lima',
       },
+
     ],
   },
 
@@ -1946,6 +2221,7 @@ export const strategicAxes: StrategicAxis[] = [
       8,
 
     projects: [
+
       {
         code:
           'PROJ-30',
@@ -1962,6 +2238,7 @@ export const strategicAxes: StrategicAxis[] = [
         responsible:
           'Juliana Prado',
       },
+
 
       {
         code:
@@ -1980,6 +2257,7 @@ export const strategicAxes: StrategicAxis[] = [
           'Marcelo Dias',
       },
 
+
       {
         code:
           'PROJ-32',
@@ -1996,6 +2274,7 @@ export const strategicAxes: StrategicAxis[] = [
         responsible:
           'Patrícia Gomes',
       },
+
     ],
   },
 
@@ -2021,6 +2300,7 @@ export const strategicAxes: StrategicAxis[] = [
       6,
 
     projects: [
+
       {
         code:
           'PROJ-40',
@@ -2037,6 +2317,7 @@ export const strategicAxes: StrategicAxis[] = [
         responsible:
           'João Silva',
       },
+
 
       {
         code:
@@ -2055,6 +2336,7 @@ export const strategicAxes: StrategicAxis[] = [
           'Maria Souza',
       },
 
+
       {
         code:
           'PROJ-42',
@@ -2071,6 +2353,7 @@ export const strategicAxes: StrategicAxis[] = [
         responsible:
           'Carlos Lima',
       },
+
     ],
   },
 
@@ -2096,6 +2379,7 @@ export const strategicAxes: StrategicAxis[] = [
       8,
 
     projects: [
+
       {
         code:
           'PROJ-50',
@@ -2112,6 +2396,7 @@ export const strategicAxes: StrategicAxis[] = [
         responsible:
           'Fernanda Costa',
       },
+
 
       {
         code:
@@ -2130,6 +2415,7 @@ export const strategicAxes: StrategicAxis[] = [
           'Rafael Oliveira',
       },
 
+
       {
         code:
           'PROJ-52',
@@ -2147,6 +2433,7 @@ export const strategicAxes: StrategicAxis[] = [
           'Amanda Souza',
       },
 
+
       {
         code:
           'PROJ-53',
@@ -2163,6 +2450,7 @@ export const strategicAxes: StrategicAxis[] = [
         responsible:
           'Pedro Santos',
       },
+
     ],
   },
 
@@ -2189,4 +2477,5 @@ export const strategicAxes: StrategicAxis[] = [
 
     projects: [],
   },
+
 ];

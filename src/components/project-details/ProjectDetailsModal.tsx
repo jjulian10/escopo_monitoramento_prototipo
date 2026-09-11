@@ -12,6 +12,7 @@ import type {
   Project,
   ProjectTask,
   ProjectHistoryItem,
+  ProjectMember,
 } from '@/data/projects';
 
 import ProjectDetailsSidebar, {
@@ -27,6 +28,8 @@ import ProjectActions from './project-actions/ProjectActions';
 import ProjectHistory from './ProjectHistory';
 
 import ProjectIndicators from './ProjectIndicators';
+
+import ProjectTeam from './ProjectTeam';
 
 
 /* ============================================================
@@ -142,7 +145,9 @@ export default function ProjectDetailsModal({
       new Date();
 
 
-    const novoRegistro: ProjectHistoryItem = {
+    const novoRegistro:
+      ProjectHistoryItem = {
+
       ...item,
 
       id:
@@ -152,11 +157,13 @@ export default function ProjectDetailsModal({
 
       createdAt:
         agora.toISOString(),
+
     };
 
 
     setProjetoLocal(
       (projetoAtual) => ({
+
         ...projetoAtual,
 
         history: [
@@ -167,6 +174,240 @@ export default function ProjectDetailsModal({
             []
           ),
         ],
+
+      })
+    );
+
+  }
+
+
+  /* ==========================================================
+     ADICIONAR MEMBRO À EQUIPE
+     ========================================================== */
+
+  function adicionarMembroEquipe(
+    novoMembro: ProjectMember
+  ) {
+
+    const agora =
+      new Date();
+
+
+    /* --------------------------------------------------------
+       EVITA DUPLICIDADE
+       -------------------------------------------------------- */
+
+    const membroJaExiste =
+      (
+        projetoLocal.team ??
+        []
+      ).some(
+        (membro) =>
+          membro.id ===
+          novoMembro.id
+      );
+
+
+    if (
+      membroJaExiste
+    ) {
+
+      return;
+
+    }
+
+
+    /* --------------------------------------------------------
+       REGISTRO DO HISTÓRICO
+       -------------------------------------------------------- */
+
+    const novoRegistro:
+      ProjectHistoryItem = {
+
+      id:
+        `history-team-added-${agora.getTime()}-${Math.random()
+          .toString(36)
+          .slice(2, 8)}`,
+
+      type:
+        'team_member_added',
+
+      title:
+        'Membro adicionado à equipe',
+
+      description:
+        `${novoMembro.name} foi adicionado ao projeto como ${novoMembro.projectRole}.`,
+
+      /*
+       * Temporário enquanto não existe autenticação real.
+       *
+       * Futuramente:
+       * user = usuário atualmente logado.
+       */
+      user:
+        projetoLocal.responsible,
+
+      createdAt:
+        agora.toISOString(),
+
+      metadata: {
+
+        memberId:
+          novoMembro.id,
+
+        memberName:
+          novoMembro.name,
+
+        newRole:
+          novoMembro.projectRole,
+
+        systemProfile:
+          novoMembro.systemProfile,
+
+      },
+
+    };
+
+
+    /* --------------------------------------------------------
+       ATUALIZA EQUIPE + HISTÓRICO
+       -------------------------------------------------------- */
+
+    setProjetoLocal(
+      (projetoAtual) => ({
+
+        ...projetoAtual,
+
+        team: [
+          ...(
+            projetoAtual.team ??
+            []
+          ),
+
+          novoMembro,
+        ],
+
+        history: [
+          novoRegistro,
+
+          ...(
+            projetoAtual.history ??
+            []
+          ),
+        ],
+
+      })
+    );
+
+  }
+
+
+  /* ==========================================================
+     REMOVER MEMBRO DA EQUIPE
+     ========================================================== */
+
+  function removerMembroEquipe(
+    membroRemovido: ProjectMember
+  ) {
+
+
+    /* --------------------------------------------------------
+       PROTEÇÃO EXTRA — GERENTE
+       -------------------------------------------------------- */
+
+    if (
+      membroRemovido.projectRole ===
+      'Gerente de projeto'
+    ) {
+
+      return;
+
+    }
+
+
+    const agora =
+      new Date();
+
+
+    /* --------------------------------------------------------
+       REGISTRO DO HISTÓRICO
+       -------------------------------------------------------- */
+
+    const novoRegistro:
+      ProjectHistoryItem = {
+
+      id:
+        `history-team-removed-${agora.getTime()}-${Math.random()
+          .toString(36)
+          .slice(2, 8)}`,
+
+      type:
+        'team_member_removed',
+
+      title:
+        'Membro removido da equipe',
+
+      description:
+        `${membroRemovido.name} foi removido da equipe do projeto.`,
+
+      /*
+       * Temporário enquanto não existe autenticação real.
+       *
+       * Futuramente:
+       * user = usuário atualmente logado.
+       */
+      user:
+        projetoLocal.responsible,
+
+      createdAt:
+        agora.toISOString(),
+
+      metadata: {
+
+        memberId:
+          membroRemovido.id,
+
+        memberName:
+          membroRemovido.name,
+
+        previousRole:
+          membroRemovido.projectRole,
+
+        systemProfile:
+          membroRemovido.systemProfile,
+
+      },
+
+    };
+
+
+    /* --------------------------------------------------------
+       REMOVE MEMBRO + ATUALIZA HISTÓRICO
+       -------------------------------------------------------- */
+
+    setProjetoLocal(
+      (projetoAtual) => ({
+
+        ...projetoAtual,
+
+        team: (
+          projetoAtual.team ??
+          []
+        ).filter(
+          (membro) =>
+            membro.id !==
+            membroRemovido.id
+        ),
+
+        history: [
+          novoRegistro,
+
+          ...(
+            projetoAtual.history ??
+            []
+          ),
+        ],
+
       })
     );
 
@@ -179,11 +420,14 @@ export default function ProjectDetailsModal({
 
   function salvarAlteracoes() {
 
-    const projetoAtualizado: Project = {
+    const projetoAtualizado:
+      Project = {
+
       ...projetoLocal,
 
       tasks:
         tarefasDoProjeto,
+
     };
 
 
@@ -205,26 +449,27 @@ export default function ProjectDetailsModal({
 
   function renderizarConteudo() {
 
+
     /* --------------------------------------------------------
-   INDICADORES
-   -------------------------------------------------------- */
+       INDICADORES
+       -------------------------------------------------------- */
 
-if (
-  secaoAtiva ===
-  'indicadores'
-) {
+    if (
+      secaoAtiva ===
+      'indicadores'
+    ) {
 
-  return (
+      return (
 
-    <ProjectIndicators
-      projeto={
-        projetoLocal
-      }
-    />
+        <ProjectIndicators
+          projeto={
+            projetoLocal
+          }
+        />
 
-  );
+      );
 
-}
+    }
 
 
     /* --------------------------------------------------------
@@ -305,6 +550,36 @@ if (
 
           aoRegistrarHistorico={
             registrarHistorico
+          }
+        />
+
+      );
+
+    }
+
+
+    /* --------------------------------------------------------
+       EQUIPE
+       -------------------------------------------------------- */
+
+    if (
+      secaoAtiva ===
+      'equipe'
+    ) {
+
+      return (
+
+        <ProjectTeam
+          projeto={
+            projetoLocal
+          }
+
+          aoAdicionarMembro={
+            adicionarMembroEquipe
+          }
+
+          aoRemoverMembro={
+            removerMembroEquipe
           }
         />
 
