@@ -10,7 +10,7 @@ Protótipo de sistema web desenvolvido para explorar uma solução de acompanham
 
 ## Demo
 
-🔗 [Acessar SCOPE]([https://ubiquitous-bonbon-dd4b79.netlify.app/](https://prototipo-scope.netlify.app/))
+🔗 [Acessar SCOPE] (https://prototipo-scope.netlify.app/)
 
 ---
 
