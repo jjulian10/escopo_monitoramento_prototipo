@@ -623,7 +623,7 @@ export default function CreateProjectModal({
      INTERFACE
      ========================================================== */
 
-  return (
+  return createPortal(
 
     <div
       className="
@@ -951,5 +951,5 @@ export default function CreateProjectModal({
 
     </div>
 
-  );
+  , document.body);
 }
