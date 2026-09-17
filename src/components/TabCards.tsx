@@ -15,7 +15,7 @@ const iconMap = {
 
 export default function TabCards({ tabs, activeTab, onTabChange }: TabCardsProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3 items-stretch">
+    <div className="scope-tab-grid grid grid-cols-1 gap-4 md:grid-cols-3 items-stretch">
       {tabs.map((tab) => {
         const Icon = iconMap[tab.id];
         const isActive = activeTab === tab.id;
@@ -24,7 +24,7 @@ export default function TabCards({ tabs, activeTab, onTabChange }: TabCardsProps
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`group relative flex h-full flex-col items-start rounded-xl border p-5 text-left transition-all duration-200 ${
+            className={`scope-tab-card group relative flex h-full flex-col items-start rounded-xl border p-5 text-left transition-all duration-200 ${
               isActive
                 ? 'border-institution-500 bg-institution-50/60 shadow-sm ring-1 ring-institution-200'
                 : 'border-gray-200 bg-white shadow-card hover:border-gray-300 hover:shadow-card-hover'
