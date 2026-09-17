@@ -8,8 +8,215 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  :root {
+    color-scheme: light;
+    --scope-navy: #0b2450;
+    --scope-navy-deep: #071a3a;
+    --scope-blue: #2563eb;
+    --scope-blue-bright: #2f6df6;
+    --scope-ink: #102a56;
+    --scope-surface: rgba(255, 255, 255, 0.92);
+    --scope-line: rgba(37, 99, 235, 0.14);
+  }
+
   body {
+    min-width: 320px;
+    background:
+      radial-gradient(circle at 86% 0%, rgba(74, 126, 255, 0.12), transparent 28rem),
+      linear-gradient(135deg, #f6f9ff 0%, #eef4ff 48%, #f9fbff 100%);
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    color: var(--scope-ink);
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ============================================================
+   TEMA VISUAL PREMIUM DO SCOPE
+   ============================================================ */
+
+aside {
+  background:
+    radial-gradient(circle at 18% 12%, rgba(54, 112, 231, 0.34), transparent 20rem),
+    linear-gradient(180deg, #102f63 0%, #0b2450 48%, #071a3a 100%) !important;
+  border-right: 1px solid rgba(145, 190, 255, 0.16);
+  box-shadow: 12px 0 40px rgba(8, 32, 75, 0.12);
+}
+
+aside > div:first-child {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent);
+}
+
+aside button {
+  border: 1px solid transparent;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
+}
+
+aside button:hover {
+  transform: translateX(2px);
+}
+
+aside button.bg-institution-500 {
+  background: linear-gradient(135deg, #2d6bea, #1f55bd) !important;
+  box-shadow:
+    0 10px 24px rgba(25, 84, 190, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+header {
+  height: 4.5rem !important;
+  border-bottom: 1px solid rgba(37, 99, 235, 0.12);
+  background: rgba(255, 255, 255, 0.82) !important;
+  box-shadow: 0 10px 30px rgba(35, 76, 143, 0.08) !important;
+  backdrop-filter: blur(18px);
+}
+
+main {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 96% 2%, rgba(66, 125, 255, 0.11), transparent 23rem),
+    radial-gradient(circle at 20% 100%, rgba(115, 161, 255, 0.08), transparent 25rem);
+}
+
+main::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(47, 109, 246, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47, 109, 246, 0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  content: '';
+  mask-image: linear-gradient(to bottom, black, transparent 82%);
+}
+
+main h1,
+main h2,
+main h3 {
+  color: var(--scope-ink);
+}
+
+main h1 {
+  letter-spacing: -0.035em;
+}
+
+main .rounded-xl.border.bg-white,
+main .shadow-card {
+  border-color: var(--scope-line) !important;
+  background: var(--scope-surface) !important;
+  box-shadow:
+    0 12px 30px rgba(30, 73, 139, 0.07),
+    0 2px 7px rgba(30, 73, 139, 0.04) !important;
+  backdrop-filter: blur(12px);
+}
+
+main .rounded-xl.border.bg-white:hover,
+main .shadow-card:hover {
+  border-color: rgba(47, 109, 246, 0.34) !important;
+  box-shadow:
+    0 18px 38px rgba(30, 73, 139, 0.12),
+    0 4px 12px rgba(30, 73, 139, 0.06) !important;
+  transform: translateY(-1px);
+}
+
+main .bg-institution-600 {
+  background: linear-gradient(135deg, #2f6df6, #1e55c6) !important;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
+}
+
+main .bg-institution-600:hover {
+  background: linear-gradient(135deg, #3b78f7, #245fd4) !important;
+}
+
+main .border-institution-500 {
+  border-color: #2f6df6 !important;
+}
+
+main .text-institution-600,
+main .text-institution-700,
+main .text-institution-800 {
+  color: #1f56bd !important;
+}
+
+main input,
+main select {
+  border-color: rgba(37, 99, 235, 0.18) !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+  box-shadow: inset 0 1px 2px rgba(19, 55, 111, 0.03);
+}
+
+main input:focus,
+main select:focus {
+  border-color: #2f6df6 !important;
+  box-shadow:
+    0 0 0 4px rgba(47, 109, 246, 0.12),
+    0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+main .rounded-lg.border {
+  border-color: rgba(37, 99, 235, 0.16);
+}
+
+main .bg-gray-100 {
+  background-color: rgba(224, 234, 252, 0.7);
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes scopeGlow {
+  0%, 100% {
+    opacity: 0.56;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.03);
+  }
+}
+
+main > div:first-child::after {
+  position: absolute;
+  top: -5rem;
+  right: 3rem;
+  z-index: -1;
+  width: 18rem;
+  height: 18rem;
+  border: 1px solid rgba(47, 109, 246, 0.09);
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 28px rgba(47, 109, 246, 0.025),
+    0 0 0 56px rgba(47, 109, 246, 0.018);
+  content: '';
+  animation: scopeGlow 7s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+  header {
+    height: 4rem !important;
+  }
+
+  main::before {
+    background-size: 34px 34px;
+  }
+
+  main > div:first-child::after {
+    right: -7rem;
   }
 }
 
