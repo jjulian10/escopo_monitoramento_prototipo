@@ -446,7 +446,14 @@
 }
 
 /* Contraste dos modais: o tema principal não deve escurecer textos internos */
-.scope-app-header,
+.scope-app-header {
+  height: 4.5rem !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-bottom: 1px solid rgba(37, 99, 235, 0.12);
+  box-shadow: 0 10px 30px rgba(35, 76, 143, 0.08) !important;
+  backdrop-filter: blur(18px);
+}
+
 [role="dialog"] header {
   height: auto !important;
   background: linear-gradient(135deg, #2f6df6, #1e55c6) !important;
