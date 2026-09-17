@@ -274,3 +274,139 @@ main > div:first-child::after {
 .animate-slide-in {
   animation: slideIn 0.3s ease-out both;
 }
+
+
+/* ============================================================
+   DETALHES DE COMPOSIÇÃO — REFERÊNCIA PREMIUM
+   ============================================================ */
+
+aside::after {
+  position: absolute;
+  right: -2.6rem;
+  bottom: 3.8rem;
+  width: 10rem;
+  height: 10rem;
+  border: 1px solid rgba(136, 185, 255, 0.28);
+  background:
+    linear-gradient(135deg, transparent 48%, rgba(58, 125, 255, 0.22) 49%, rgba(58, 125, 255, 0.22) 52%, transparent 53%),
+    linear-gradient(45deg, rgba(58, 125, 255, 0.18), transparent 58%);
+  clip-path: polygon(50% 0, 100% 25%, 100% 76%, 50% 100%, 0 76%, 0 25%);
+  opacity: 0.82;
+  pointer-events: none;
+  content: '';
+}
+
+.scope-tab-card {
+  overflow: hidden;
+  min-height: 9.5rem;
+}
+
+.scope-tab-card::after {
+  position: absolute;
+  right: 1rem;
+  bottom: -1.2rem;
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(47, 109, 246, 0.13), transparent 68%);
+  content: '';
+  pointer-events: none;
+}
+
+.scope-tab-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.scope-tab-card .rounded-xl {
+  box-shadow: 0 8px 18px rgba(22, 77, 181, 0.12);
+}
+
+.scope-tab-card .rounded-full {
+  box-shadow: 0 4px 12px rgba(22, 77, 181, 0.12);
+}
+
+.scope-filter-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.scope-filter-panel::after {
+  position: absolute;
+  top: 0.8rem;
+  right: -1.2rem;
+  width: 13rem;
+  height: 8rem;
+  border: 1px solid rgba(47, 109, 246, 0.08);
+  background:
+    linear-gradient(30deg, transparent 45%, rgba(47, 109, 246, 0.07) 46%, rgba(47, 109, 246, 0.07) 54%, transparent 55%),
+    linear-gradient(150deg, transparent 45%, rgba(47, 109, 246, 0.06) 46%, rgba(47, 109, 246, 0.06) 54%, transparent 55%);
+  clip-path: polygon(50% 0, 100% 26%, 100% 74%, 50% 100%, 0 74%, 0 26%);
+  opacity: 0.9;
+  pointer-events: none;
+  content: '';
+}
+
+.scope-filter-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.scope-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.72rem;
+  letter-spacing: -0.01em;
+}
+
+.scope-section-title::before {
+  width: 0.32rem;
+  height: 1.55rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #3b82f6, #174cae);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.22);
+  content: '';
+}
+
+.scope-summary-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 5.8rem;
+}
+
+.scope-summary-card::after {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.7rem;
+  width: 3.8rem;
+  height: 3.6rem;
+  background:
+    linear-gradient(to top, rgba(47, 109, 246, 0.2) 0 100%) 0.15rem 1.8rem / 0.42rem 1.3rem no-repeat,
+    linear-gradient(to top, rgba(47, 109, 246, 0.24) 0 100%) 0.9rem 1.15rem / 0.42rem 1.95rem no-repeat,
+    linear-gradient(to top, rgba(47, 109, 246, 0.3) 0 100%) 1.65rem 0.5rem / 0.42rem 2.6rem no-repeat,
+    linear-gradient(to top, rgba(47, 109, 246, 0.18) 0 100%) 2.4rem 1.45rem / 0.42rem 1.65rem no-repeat;
+  opacity: 0.72;
+  pointer-events: none;
+  content: '';
+}
+
+.scope-summary-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.scope-summary-card .rounded-lg {
+  box-shadow: 0 6px 15px rgba(22, 77, 181, 0.08);
+}
+
+@media (max-width: 640px) {
+  .scope-summary-card::after {
+    right: 0.35rem;
+    transform: scale(0.78);
+    transform-origin: right bottom;
+  }
+
+  .scope-filter-panel::after {
+    right: -5rem;
+  }
+}
