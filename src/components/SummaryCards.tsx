@@ -30,7 +30,7 @@ export default function SummaryCards({ cards }: SummaryCardsProps) {
     return (
           <div
             key={card.id}
-            className={`flex items-center gap-3.5 rounded-xl border border-gray-200 ${c.accent} border-l-4 bg-white p-4 shadow-card transition-shadow hover:shadow-card-hover`}
+            className={`scope-summary-card flex items-center gap-3.5 rounded-xl border border-gray-200 ${c.accent} border-l-4 bg-white p-4 shadow-card transition-shadow hover:shadow-card-hover`}
           >
             <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${c.bg} ${c.text}`}>
               <Icon className="h-5 w-5" />
