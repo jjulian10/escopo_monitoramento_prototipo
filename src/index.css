@@ -43,7 +43,7 @@
    TEMA VISUAL PREMIUM DO SCOPE
    ============================================================ */
 
-aside {
+#root > div > aside {
   background:
     radial-gradient(circle at 18% 12%, rgba(54, 112, 231, 0.34), transparent 20rem),
     linear-gradient(180deg, #102f63 0%, #0b2450 48%, #071a3a 100%) !important;
@@ -51,11 +51,11 @@ aside {
   box-shadow: 12px 0 40px rgba(8, 32, 75, 0.12);
 }
 
-aside > div:first-child {
+#root > div > aside > div:first-child {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent);
 }
 
-aside button {
+#root > div > aside button {
   border: 1px solid transparent;
   transition:
     transform 180ms ease,
@@ -64,11 +64,11 @@ aside button {
     color 180ms ease;
 }
 
-aside button:hover {
+#root > div > aside button:hover {
   transform: translateX(2px);
 }
 
-aside button.bg-institution-500 {
+#root > div > aside button.bg-institution-500 {
   background: linear-gradient(135deg, #2d6bea, #1f55bd) !important;
   box-shadow:
     0 10px 24px rgba(25, 84, 190, 0.34),
@@ -280,7 +280,7 @@ aside button.bg-institution-500 {
    DETALHES DE COMPOSIÇÃO — REFERÊNCIA PREMIUM
    ============================================================ */
 
-aside::after {
+#root > div > aside::after {
   position: absolute;
   right: -2.6rem;
   bottom: 3.8rem;
