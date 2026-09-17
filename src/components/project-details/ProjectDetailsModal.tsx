@@ -737,6 +737,7 @@ if (
 
     <div
       className="
+        scope-project-modal
         fixed
         inset-0
         z-50
@@ -751,6 +752,7 @@ if (
 
       <div
         className="
+          scope-project-modal-panel
           flex
           h-[92vh]
           w-full
