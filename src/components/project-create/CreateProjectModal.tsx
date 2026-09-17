@@ -623,6 +623,7 @@ export default function CreateProjectModal({
 
     <div
       className="
+        scope-create-modal
         fixed
         inset-0
         z-[80]
@@ -642,6 +643,7 @@ export default function CreateProjectModal({
 
       <div
         className="
+          scope-create-modal-panel
           flex
           h-[94vh]
           w-full
