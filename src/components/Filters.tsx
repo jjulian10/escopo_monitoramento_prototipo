@@ -324,7 +324,7 @@ export default function Filters({
           FILTROS DE AÇÕES
           ====================================================== */}
 
-      <h2 className={classeTituloSecao}>
+      <h2 className={`${classeTituloSecao} scope-section-title`}>
         Filtros de Ações
       </h2>
 
