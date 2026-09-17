@@ -141,11 +141,13 @@ export default function Header({
         top-0
         z-20
         flex
-        h-16
+        min-w-0
         items-center
         justify-end
+        overflow-hidden
         bg-white
-        px-6
+        px-3
+        sm:px-6
         shadow-card
       "
     >
@@ -153,8 +155,10 @@ export default function Header({
       <div
         className="
           flex
+          min-w-0
           items-center
-          gap-4
+          gap-2
+          sm:gap-4
         "
       >
 
@@ -180,6 +184,7 @@ export default function Header({
               flex
               h-10
               w-10
+              shrink-0
               items-center
               justify-center
               rounded-lg
@@ -291,15 +296,19 @@ export default function Header({
         <div
           className="
             flex
+            min-w-0
             items-center
-            gap-3
+            gap-2
+            sm:gap-3
           "
         >
 
-          <div className="text-right">
+          <div className="hidden min-w-0 text-right sm:block">
 
             <p
               className="
+                max-w-[min(42vw,20rem)]
+                truncate
                 text-sm
                 font-semibold
                 leading-tight
