@@ -10,7 +10,7 @@ Protótipo de sistema web desenvolvido para explorar uma solução de acompanham
 
 ## Demo
 
-🔗 [Acessar SCOPE] (https://prototipo-scope.netlify.app/)
+🔗 [Acessar SCOPE](https://prototipo-scope.netlify.app/)
 
 ---
 
@@ -54,11 +54,14 @@ A interface foi pensada para permitir uma leitura rápida da situação dos proj
 
 Entre as informações apresentadas estão:
 
-```text
-Projetos
-Em andamento
-Concluídos
-Indicadores
-Evolução
-Status
-Responsáveis
+- Projetos
+- Em andamento
+- Concluídos
+- Indicadores
+- Evolução
+- Status
+- Responsáveis
+
+### Prévia visual
+
+![Prévia premium do dashboard SCOPE](https://raw.githubusercontent.com/jjulian10/escopo_monitoramento_prototipo/main/public/scope-premium.jpg)
