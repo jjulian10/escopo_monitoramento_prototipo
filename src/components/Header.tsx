@@ -144,7 +144,7 @@ export default function Header({
         min-w-0
         items-center
         justify-end
-        overflow-hidden
+        overflow-visible
         bg-white
         px-3
         sm:px-6
