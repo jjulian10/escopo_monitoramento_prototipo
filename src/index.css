@@ -490,3 +490,78 @@
     padding: 0.75rem !important;
   }
 }
+
+
+/* Contraste e layout dos modais */
+.scope-project-modal-panel,
+.scope-create-modal-panel {
+  border: 1px solid rgba(37, 99, 235, 0.14);
+}
+
+.scope-project-modal-panel > header,
+.scope-create-modal-panel > header {
+  flex-shrink: 0;
+  height: auto !important;
+  background: linear-gradient(135deg, #2f6df6, #1e55c6) !important;
+}
+
+.scope-project-modal-panel > main,
+.scope-create-modal-panel > main {
+  background:
+    radial-gradient(circle at 92% 8%, rgba(74, 126, 255, 0.10), transparent 20rem),
+    linear-gradient(135deg, #f8fbff 0%, #f2f6ff 100%) !important;
+}
+
+.scope-project-modal-panel aside {
+  background: #ffffff !important;
+  border-right: 1px solid rgba(37, 99, 235, 0.12);
+  color: #334155;
+  box-shadow: none;
+}
+
+.scope-project-modal-panel aside button {
+  color: #475569;
+}
+
+.scope-project-modal-panel aside button:hover {
+  color: #1e55c6;
+  background: #eff6ff;
+}
+
+.scope-project-modal-panel aside button.bg-institution-50 {
+  color: #174cae !important;
+  background: #eaf2ff !important;
+}
+
+.scope-project-modal-panel main h1,
+.scope-project-modal-panel main h2,
+.scope-project-modal-panel main h3,
+.scope-create-modal-panel main h1,
+.scope-create-modal-panel main h2,
+.scope-create-modal-panel main h3 {
+  color: #1e293b !important;
+}
+
+.scope-project-modal-panel main p,
+.scope-create-modal-panel main p,
+.scope-project-modal-panel main label,
+.scope-create-modal-panel main label {
+  color: #475569;
+}
+
+.scope-project-modal-panel input,
+.scope-project-modal-panel select,
+.scope-project-modal-panel textarea,
+.scope-create-modal-panel input,
+.scope-create-modal-panel select,
+.scope-create-modal-panel textarea {
+  color: #1e293b !important;
+  background: #ffffff !important;
+  border-color: rgba(37, 99, 235, 0.20) !important;
+}
+
+.scope-project-modal-panel footer,
+.scope-create-modal-panel footer {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.96);
+}
