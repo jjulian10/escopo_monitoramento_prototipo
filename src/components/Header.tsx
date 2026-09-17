@@ -136,6 +136,7 @@ export default function Header({
 
     <header
       className="
+        scope-app-header
         sticky
         top-0
         z-20
