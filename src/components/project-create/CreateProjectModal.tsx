@@ -3,6 +3,10 @@ import {
 } from 'react';
 
 import {
+  createPortal,
+} from 'react-dom';
+
+import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
