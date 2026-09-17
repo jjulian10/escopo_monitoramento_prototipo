@@ -61,7 +61,3 @@ Entre as informações apresentadas estão:
 - Evolução
 - Status
 - Responsáveis
-
-### Prévia visual
-
-![Prévia premium do dashboard SCOPE](https://raw.githubusercontent.com/jjulian10/escopo_monitoramento_prototipo/main/public/scope-premium.jpg)
