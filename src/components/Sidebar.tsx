@@ -1,5 +1,6 @@
 import {
   LayoutDashboard,
+  Box,
   ClipboardList,
   Wrench,
   BarChart3,
@@ -220,7 +221,7 @@ export default function Sidebar({
               "
             >
 
-              <LayoutDashboard
+              <Box
                 className="
                   h-5
                   w-5
