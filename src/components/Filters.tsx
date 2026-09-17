@@ -164,14 +164,14 @@ export default function Filters({
 
   return (
 
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-card">
+    <div className="scope-filter-panel rounded-xl border border-gray-200 bg-white p-6 shadow-card">
 
 
       {/* ======================================================
           FILTROS DE PROJETOS
           ====================================================== */}
 
-      <h2 className={classeTituloSecao}>
+      <h2 className={`${classeTituloSecao} scope-section-title`}>
         Filtros de Projetos
       </h2>
 
