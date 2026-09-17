@@ -75,7 +75,7 @@ aside button.bg-institution-500 {
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-header {
+.scope-app-header {
   height: 4.5rem !important;
   border-bottom: 1px solid rgba(37, 99, 235, 0.12);
   background: rgba(255, 255, 255, 0.82) !important;
@@ -83,7 +83,7 @@ header {
   backdrop-filter: blur(18px);
 }
 
-main {
+#root > div > div > main {
   position: relative;
   isolation: isolate;
   background:
@@ -91,7 +91,7 @@ main {
     radial-gradient(circle at 20% 100%, rgba(115, 161, 255, 0.08), transparent 25rem);
 }
 
-main::before {
+#root > div > div > main::before {
   position: absolute;
   z-index: -1;
   inset: 0;
@@ -104,18 +104,18 @@ main::before {
   mask-image: linear-gradient(to bottom, black, transparent 82%);
 }
 
-main h1,
-main h2,
-main h3 {
+#root > div > div > main h1,
+#root > div > div > main h2,
+#root > div > div > main h3 {
   color: var(--scope-ink);
 }
 
-main h1 {
+#root > div > div > main h1 {
   letter-spacing: -0.035em;
 }
 
-main .rounded-xl.border.bg-white,
-main .shadow-card {
+#root > div > div > main .rounded-xl.border.bg-white,
+#root > div > div > main .shadow-card {
   border-color: var(--scope-line) !important;
   background: var(--scope-surface) !important;
   box-shadow:
@@ -124,8 +124,8 @@ main .shadow-card {
   backdrop-filter: blur(12px);
 }
 
-main .rounded-xl.border.bg-white:hover,
-main .shadow-card:hover {
+#root > div > div > main .rounded-xl.border.bg-white:hover,
+#root > div > div > main .shadow-card:hover {
   border-color: rgba(47, 109, 246, 0.34) !important;
   box-shadow:
     0 18px 38px rgba(30, 73, 139, 0.12),
@@ -133,45 +133,45 @@ main .shadow-card:hover {
   transform: translateY(-1px);
 }
 
-main .bg-institution-600 {
+#root > div > div > main .bg-institution-600 {
   background: linear-gradient(135deg, #2f6df6, #1e55c6) !important;
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
 }
 
-main .bg-institution-600:hover {
+#root > div > div > main .bg-institution-600:hover {
   background: linear-gradient(135deg, #3b78f7, #245fd4) !important;
 }
 
-main .border-institution-500 {
+#root > div > div > main .border-institution-500 {
   border-color: #2f6df6 !important;
 }
 
-main .text-institution-600,
-main .text-institution-700,
-main .text-institution-800 {
+#root > div > div > main .text-institution-600,
+#root > div > div > main .text-institution-700,
+#root > div > div > main .text-institution-800 {
   color: #1f56bd !important;
 }
 
-main input,
-main select {
+#root > div > div > main input,
+#root > div > div > main select {
   border-color: rgba(37, 99, 235, 0.18) !important;
   background: rgba(255, 255, 255, 0.86) !important;
   box-shadow: inset 0 1px 2px rgba(19, 55, 111, 0.03);
 }
 
-main input:focus,
-main select:focus {
+#root > div > div > main input:focus,
+#root > div > div > main select:focus {
   border-color: #2f6df6 !important;
   box-shadow:
     0 0 0 4px rgba(47, 109, 246, 0.12),
     0 4px 12px rgba(37, 99, 235, 0.08);
 }
 
-main .rounded-lg.border {
+#root > div > div > main .rounded-lg.border {
   border-color: rgba(37, 99, 235, 0.16);
 }
 
-main .bg-gray-100 {
+#root > div > div > main .bg-gray-100 {
   background-color: rgba(224, 234, 252, 0.7);
 }
 
@@ -190,7 +190,7 @@ main .bg-gray-100 {
   }
 }
 
-main > div:first-child::after {
+#root > div > div > main > div:first-child::after {
   position: absolute;
   top: -5rem;
   right: 3rem;
@@ -207,15 +207,15 @@ main > div:first-child::after {
 }
 
 @media (max-width: 768px) {
-  header {
+  .scope-app-header {
     height: 4rem !important;
   }
 
-  main::before {
+  #root > div > div > main::before {
     background-size: 34px 34px;
   }
 
-  main > div:first-child::after {
+  #root > div > div > main > div:first-child::after {
     right: -7rem;
   }
 }
@@ -408,5 +408,85 @@ aside::after {
 
   .scope-filter-panel::after {
     right: -5rem;
+  }
+}
+
+
+/* Cores dos minigráficos por indicador */
+.scope-summary-card-blue::after {
+  background:
+    linear-gradient(to top, rgba(47, 109, 246, 0.20) 0 100%) 0.15rem 1.8rem / 0.42rem 1.3rem no-repeat,
+    linear-gradient(to top, rgba(47, 109, 246, 0.28) 0 100%) 0.9rem 1.15rem / 0.42rem 1.95rem no-repeat,
+    linear-gradient(to top, rgba(47, 109, 246, 0.36) 0 100%) 1.65rem 0.5rem / 0.42rem 2.6rem no-repeat,
+    linear-gradient(to top, rgba(47, 109, 246, 0.24) 0 100%) 2.4rem 1.45rem / 0.42rem 1.65rem no-repeat !important;
+}
+
+.scope-summary-card-amber::after {
+  background:
+    linear-gradient(to top, rgba(245, 158, 11, 0.22) 0 100%) 0.15rem 1.8rem / 0.42rem 1.3rem no-repeat,
+    linear-gradient(to top, rgba(245, 158, 11, 0.30) 0 100%) 0.9rem 1.15rem / 0.42rem 1.95rem no-repeat,
+    linear-gradient(to top, rgba(245, 158, 11, 0.40) 0 100%) 1.65rem 0.5rem / 0.42rem 2.6rem no-repeat,
+    linear-gradient(to top, rgba(245, 158, 11, 0.26) 0 100%) 2.4rem 1.45rem / 0.42rem 1.65rem no-repeat !important;
+}
+
+.scope-summary-card-green::after {
+  background:
+    linear-gradient(to top, rgba(34, 197, 94, 0.22) 0 100%) 0.15rem 1.8rem / 0.42rem 1.3rem no-repeat,
+    linear-gradient(to top, rgba(34, 197, 94, 0.30) 0 100%) 0.9rem 1.15rem / 0.42rem 1.95rem no-repeat,
+    linear-gradient(to top, rgba(34, 197, 94, 0.40) 0 100%) 1.65rem 0.5rem / 0.42rem 2.6rem no-repeat,
+    linear-gradient(to top, rgba(34, 197, 94, 0.26) 0 100%) 2.4rem 1.45rem / 0.42rem 1.65rem no-repeat !important;
+}
+
+.scope-summary-card-red::after {
+  background:
+    linear-gradient(to top, rgba(239, 68, 68, 0.22) 0 100%) 0.15rem 1.8rem / 0.42rem 1.3rem no-repeat,
+    linear-gradient(to top, rgba(239, 68, 68, 0.30) 0 100%) 0.9rem 1.15rem / 0.42rem 1.95rem no-repeat,
+    linear-gradient(to top, rgba(239, 68, 68, 0.40) 0 100%) 1.65rem 0.5rem / 0.42rem 2.6rem no-repeat,
+    linear-gradient(to top, rgba(239, 68, 68, 0.26) 0 100%) 2.4rem 1.45rem / 0.42rem 1.65rem no-repeat !important;
+}
+
+/* Contraste dos modais: o tema principal não deve escurecer textos internos */
+.scope-app-header,
+[role="dialog"] header {
+  height: auto !important;
+  background: linear-gradient(135deg, #2f6df6, #1e55c6) !important;
+}
+
+[role="dialog"] h1,
+[role="dialog"] h2,
+[role="dialog"] h3,
+[role="dialog"] p,
+[role="dialog"] label,
+[role="dialog"] span {
+  color: inherit;
+}
+
+[role="dialog"] input,
+[role="dialog"] select,
+[role="dialog"] textarea {
+  color: #1f2937 !important;
+  background: #ffffff !important;
+}
+
+[role="dialog"] button {
+  color: inherit;
+}
+
+[role="dialog"] .text-gray-400,
+[role="dialog"] .text-gray-500,
+[role="dialog"] .text-gray-600,
+[role="dialog"] .text-gray-700,
+[role="dialog"] .text-gray-800 {
+  color: #334155 !important;
+}
+
+[role="dialog"] .text-white,
+[role="dialog"] .text-white\/70 {
+  color: #ffffff !important;
+}
+
+@media (max-width: 768px) {
+  [role="dialog"] {
+    padding: 0.75rem !important;
   }
 }
