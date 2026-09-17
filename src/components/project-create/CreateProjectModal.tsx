@@ -630,7 +630,7 @@ export default function CreateProjectModal({
         scope-create-modal
         fixed
         inset-0
-        z-[80]
+        z-[9999]
         flex
         items-center
         justify-center
@@ -668,6 +668,8 @@ export default function CreateProjectModal({
         <header
           className="
             flex
+            min-h-16
+            shrink-0
             items-center
             justify-between
             bg-institution-600
