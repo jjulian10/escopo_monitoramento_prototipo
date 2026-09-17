@@ -565,3 +565,68 @@
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.96);
 }
+
+
+/* Correções finais de responsividade e camadas */
+.scope-create-modal,
+.scope-project-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  width: 100vw !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+.scope-create-modal-panel,
+.scope-project-modal-panel {
+  position: relative;
+  z-index: 1;
+  max-height: calc(100vh - 2rem);
+}
+
+.scope-create-modal-panel > header,
+.scope-project-modal-panel > header,
+.scope-create-modal-panel > footer,
+.scope-project-modal-panel > footer {
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .scope-app-header {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  .scope-app-header > div {
+    gap: 0.5rem !important;
+  }
+
+  .scope-app-header .text-right {
+    display: none !important;
+  }
+
+  .scope-app-header .h-10.w-10 {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+  }
+
+  .scope-create-modal,
+  .scope-project-modal {
+    padding: 0.5rem !important;
+  }
+
+  .scope-create-modal-panel,
+  .scope-project-modal-panel {
+    max-height: calc(100vh - 1rem);
+    border-radius: 1rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .scope-create-modal-panel,
+  .scope-project-modal-panel {
+    width: 100% !important;
+    height: calc(100vh - 1rem) !important;
+  }
+}
