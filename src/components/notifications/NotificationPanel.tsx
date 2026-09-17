@@ -270,7 +270,7 @@ import {
           absolute
           right-0
           top-[calc(100%+12px)]
-          z-50
+          z-[100]
           w-[420px]
           max-w-[calc(100vw-32px)]
           overflow-hidden
