@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   CirclePlus,
   Filter,
+  FileMinus2,
+  FilePlus2,
   History,
   ListChecks,
   Search,
@@ -423,6 +425,48 @@ const configuracaoDosTipos: Record<
 
     Icone:
       UserMinus,
+
+    fundoIcone:
+      'bg-red-50',
+
+    corIcone:
+      'text-red-600',
+
+    fundoBadge:
+      'bg-red-50',
+
+    corBadge:
+      'text-red-700',
+  },
+
+
+  document_added: {
+    label:
+      'Documento',
+
+    Icone:
+      FilePlus2,
+
+    fundoIcone:
+      'bg-emerald-50',
+
+    corIcone:
+      'text-emerald-600',
+
+    fundoBadge:
+      'bg-emerald-50',
+
+    corBadge:
+      'text-emerald-700',
+  },
+
+
+  document_removed: {
+    label:
+      'Documento',
+
+    Icone:
+      FileMinus2,
 
     fundoIcone:
       'bg-red-50',

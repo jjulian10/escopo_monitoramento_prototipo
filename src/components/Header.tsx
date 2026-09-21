@@ -1,4 +1,7 @@
 import {
+  lazy,
+  memo,
+  Suspense,
   useMemo,
   useState,
 } from 'react';
@@ -16,7 +19,10 @@ import {
   type AlertaPrazo,
 } from '@/utils/projectAlerts';
 
-import NotificationPanel from '@/components/notifications/NotificationPanel';
+const carregarNotificationPanel = () =>
+  import('@/components/notifications/NotificationPanel');
+
+const NotificationPanel = lazy(carregarNotificationPanel);
 
 
 /* ============================================================
@@ -36,7 +42,7 @@ interface HeaderProps {
    COMPONENTE PRINCIPAL
    ============================================================ */
 
-export default function Header({
+function Header({
   projetos,
   aoSelecionarAlerta,
 }: HeaderProps) {
@@ -172,6 +178,14 @@ export default function Header({
           <button
             type="button"
 
+            onMouseEnter={() => {
+              void carregarNotificationPanel();
+            }}
+
+            onFocus={() => {
+              void carregarNotificationPanel();
+            }}
+
             onClick={() =>
               setNotificacoesAbertas(
                 (aberto) =>
@@ -255,21 +269,23 @@ export default function Header({
 
           {notificacoesAbertas && (
 
-            <NotificationPanel
-              alertas={
-                alertas
-              }
+            <Suspense fallback={null}>
+              <NotificationPanel
+                alertas={
+                  alertas
+                }
 
-              aoFechar={() =>
-                setNotificacoesAbertas(
-                  false
-                )
-              }
+                aoFechar={() =>
+                  setNotificacoesAbertas(
+                    false
+                  )
+                }
 
-              aoSelecionarAlerta={
-                selecionarAlerta
-              }
-            />
+                aoSelecionarAlerta={
+                  selecionarAlerta
+                }
+              />
+            </Suspense>
 
           )}
 
@@ -358,3 +374,5 @@ export default function Header({
 
   );
 }
+
+export default memo(Header);

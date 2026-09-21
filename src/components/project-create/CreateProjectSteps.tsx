@@ -15,8 +15,14 @@ import {
   /* ============================================================
      ETAPAS DO CADASTRO
      ============================================================ */
+
+  interface EtapaDoCadastro {
+    numero: number;
+    titulo: string;
+    opcional?: boolean;
+  }
   
-     const etapas = [
+     const etapas: EtapaDoCadastro[] = [
 
         {
           numero: 1,

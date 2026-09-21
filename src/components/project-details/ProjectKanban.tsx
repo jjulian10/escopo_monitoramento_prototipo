@@ -1809,7 +1809,7 @@ function ColunaKanban({
       );
 
 
-    const tarefasAtualizadas =
+    const tarefasAtualizadas: ProjectTask[] =
       tarefas.map(
         (item) =>
 
@@ -2605,7 +2605,7 @@ if (
        ATUALIZA A SUBTAREFA
        ======================================================== */
 
-    const tarefasAtualizadas =
+    const tarefasAtualizadas: ProjectTask[] =
       tarefas.map(
         (tarefa) => {
 

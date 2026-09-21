@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { FolderKanban, Activity, CheckCircle2, AlertTriangle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -21,7 +22,7 @@ const config: Record<
   red: { icon: AlertTriangle, bg: 'bg-red-50', text: 'text-red-600', accent: 'border-l-red-400' },
 };
 
-export default function SummaryCards({ cards }: SummaryCardsProps) {
+function SummaryCards({ cards }: SummaryCardsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => {
@@ -52,3 +53,5 @@ export default function SummaryCards({ cards }: SummaryCardsProps) {
     </div>
   );
 }
+
+export default memo(SummaryCards);

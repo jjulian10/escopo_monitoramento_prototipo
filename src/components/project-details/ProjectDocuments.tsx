@@ -177,8 +177,10 @@ import {
   
     const documentos:
       ProjectDocument[] =
-      projeto.documents ??
-      [];
+      useMemo(
+        () => projeto.documents ?? [],
+        [projeto.documents]
+      );
   
   
     /* ==========================================================

@@ -1,4 +1,8 @@
 import {
+  memo,
+} from 'react';
+
+import {
   LayoutDashboard,
   Box,
   ClipboardList,
@@ -138,7 +142,7 @@ const menuItems: MenuItem[] = [
    COMPONENTE
    ============================================================ */
 
-export default function Sidebar({
+function Sidebar({
   collapsed,
   onToggle,
   paginaAtiva,
@@ -159,7 +163,7 @@ export default function Sidebar({
         flex-col
         bg-institution-900
         text-white
-        transition-all
+        transition-[width]
         duration-300
         ease-in-out
 
@@ -367,7 +371,7 @@ export default function Sidebar({
                       py-2.5
                       text-sm
                       font-medium
-                      transition-all
+                      transition-colors
 
                       ${
                         estaAtivo
@@ -460,7 +464,7 @@ export default function Sidebar({
             text-sm
             font-medium
             text-slate-400
-            transition-all
+            transition-colors
             hover:bg-institution-800
             hover:text-white
 
@@ -514,3 +518,5 @@ export default function Sidebar({
 
   );
 }
+
+export default memo(Sidebar);

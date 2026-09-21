@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { User, Users, Building2 } from 'lucide-react';
 import type { TabConfig } from '@/data/projects';
 
@@ -13,7 +14,7 @@ const iconMap = {
   strategic: Building2,
 } as const;
 
-export default function TabCards({ tabs, activeTab, onTabChange }: TabCardsProps) {
+function TabCards({ tabs, activeTab, onTabChange }: TabCardsProps) {
   return (
     <div className="scope-tab-grid grid grid-cols-1 gap-4 md:grid-cols-3 items-stretch">
       {tabs.map((tab) => {
@@ -24,7 +25,7 @@ export default function TabCards({ tabs, activeTab, onTabChange }: TabCardsProps
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`scope-tab-card group relative flex h-full flex-col items-start rounded-xl border p-5 text-left transition-all duration-200 ${
+            className={`scope-tab-card group relative flex h-full flex-col items-start rounded-xl border p-5 text-left transition-[background-color,border-color,box-shadow,color] duration-200 ${
               isActive
                 ? 'border-institution-500 bg-institution-50/60 shadow-sm ring-1 ring-institution-200'
                 : 'border-gray-200 bg-white shadow-card hover:border-gray-300 hover:shadow-card-hover'
@@ -76,3 +77,5 @@ export default function TabCards({ tabs, activeTab, onTabChange }: TabCardsProps
     </div>
   );
 }
+
+export default memo(TabCards);

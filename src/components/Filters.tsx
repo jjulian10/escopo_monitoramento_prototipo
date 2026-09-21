@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import {
   BarChart3,
   Download,
@@ -59,7 +59,7 @@ const FILTRO_TODOS_STATUS = 'Todos os status';
    COMPONENTE PRINCIPAL
    ============================================================ */
 
-export default function Filters({
+function Filters({
   aoFiltrar,
   aoLimpar,
 }: FiltrosProps) {
@@ -591,3 +591,5 @@ export default function Filters({
     </div>
   );
 }
+
+export default memo(Filters);

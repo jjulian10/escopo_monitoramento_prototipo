@@ -1,4 +1,5 @@
 import {
+  memo,
   useState,
 } from 'react';
 
@@ -365,7 +366,7 @@ function LinhaDoProjeto({
         border-gray-200
         bg-white
         shadow-card
-        transition-all
+        transition-[border-color,box-shadow]
         hover:border-institution-200
         hover:shadow-card-hover
       "
@@ -790,7 +791,7 @@ function LinhaDoProjeto({
                 text-sm
                 font-medium
                 text-institution-600
-                transition-all
+                transition-colors
                 hover:border-institution-200
                 hover:bg-institution-50
               "
@@ -830,7 +831,7 @@ function LinhaDoProjeto({
                 text-sm
                 font-medium
                 text-institution-600
-                transition-all
+                transition-colors
                 hover:border-institution-200
                 hover:bg-institution-50
               "
@@ -866,7 +867,7 @@ function LinhaDoProjeto({
                 border
                 border-gray-200
                 text-institution-600
-                transition-all
+                transition-colors
                 hover:border-institution-200
                 hover:bg-institution-50
               "
@@ -1006,7 +1007,7 @@ function LinhaDoProjeto({
                         border
                         border-gray-200
                         p-4
-                        transition-all
+                        transition-colors
                         hover:border-institution-200
 
                         ${statusTarefa.fundo}
@@ -1347,7 +1348,7 @@ function LinhaDoProjeto({
    COMPONENTE PRINCIPAL: LISTA DE PROJETOS
    ============================================================ */
 
-export default function ProjectList({
+function ProjectList({
   projects: projetos,
   title: titulo,
   badge: quantidade,
@@ -1597,3 +1598,5 @@ export default function ProjectList({
 
   );
 }
+
+export default memo(ProjectList);

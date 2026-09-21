@@ -1,4 +1,8 @@
 import {
+  lazy,
+  Suspense,
+  useCallback,
+  useMemo,
   useState,
 } from 'react';
 
@@ -23,17 +27,31 @@ import SummaryCards from '@/components/SummaryCards';
 
 import ProjectList from '@/components/ProjectList';
 
-import StrategicView from '@/components/StrategicView';
-
-import CreateProjectModal from '@/components/project-create/CreateProjectModal';
-
-import ProjectDetailsModal from '@/components/project-details/ProjectDetailsModal';
-
-import GlobalProjectKanban from '@/components/project-kanban/GlobalProjectKanban';
-
 import {
   sincronizarExecucaoDoProjeto,
 } from '@/utils/projectProgress';
+
+
+/* ============================================================
+   COMPONENTES CARREGADOS SOMENTE QUANDO FOREM UTILIZADOS
+   ============================================================ */
+
+const carregarStrategicView = () =>
+  import('@/components/StrategicView');
+
+const carregarCreateProjectModal = () =>
+  import('@/components/project-create/CreateProjectModal');
+
+const carregarProjectDetailsModal = () =>
+  import('@/components/project-details/ProjectDetailsModal');
+
+const carregarGlobalProjectKanban = () =>
+  import('@/components/project-kanban/GlobalProjectKanban');
+
+const StrategicView = lazy(carregarStrategicView);
+const CreateProjectModal = lazy(carregarCreateProjectModal);
+const ProjectDetailsModal = lazy(carregarProjectDetailsModal);
+const GlobalProjectKanban = lazy(carregarGlobalProjectKanban);
 
 
 /* ============================================================
@@ -101,6 +119,68 @@ const filtrosIniciais: DadosDosFiltros = {
   dataFim: '',
 
 };
+
+
+/* ============================================================
+   FILTRAGEM PURA
+
+   Mantida fora do componente para não ser recriada a cada
+   renderização da tela principal.
+   ============================================================ */
+
+function filtrarProjetos<
+  T extends {
+    code: string;
+    status: string;
+    responsible: string;
+  }
+>(
+  listaDeProjetos: T[],
+  filtrosAplicados: DadosDosFiltros
+) {
+  const responsavelPesquisado =
+    filtrosAplicados.responsavel.trim().toLowerCase();
+
+  return listaDeProjetos.filter((projeto) => {
+    const correspondeAoProjeto =
+      filtrosAplicados.projeto === 'Todos os projetos' ||
+      projeto.code === filtrosAplicados.projeto;
+
+    const correspondeAoStatus =
+      filtrosAplicados.status === 'Todos os status' ||
+      projeto.status === filtrosAplicados.status;
+
+    const correspondeAoResponsavel =
+      responsavelPesquisado === '' ||
+      projeto.responsible.toLowerCase().includes(responsavelPesquisado);
+
+    return (
+      correspondeAoProjeto &&
+      correspondeAoStatus &&
+      correspondeAoResponsavel
+    );
+  });
+}
+
+
+function CarregamentoDaSecao() {
+  return (
+    <div
+      className="min-h-40 rounded-xl border border-gray-200 bg-white"
+      aria-label="Carregando conteúdo"
+    />
+  );
+}
+
+
+function CarregamentoDoModal() {
+  return (
+    <div
+      className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-[2px]"
+      aria-label="Carregando janela"
+    />
+  );
+}
 
 
 /* ============================================================
@@ -237,37 +317,37 @@ export default function App() {
      APLICAR FILTROS
      ========================================================== */
 
-  function aplicarFiltros(
+  const aplicarFiltros = useCallback((
     filtros: DadosDosFiltros
-  ) {
+  ) => {
 
     setFiltrosAplicados(
       filtros
     );
 
-  }
+  }, []);
 
 
   /* ==========================================================
      LIMPAR FILTROS
      ========================================================== */
 
-  function limparFiltros() {
+  const limparFiltros = useCallback(() => {
 
     setFiltrosAplicados(
       filtrosIniciais
     );
 
-  }
+  }, []);
 
 
   /* ==========================================================
      ADICIONAR NOVO PROJETO
      ========================================================== */
 
-  function adicionarNovoProjeto(
+  const adicionarNovoProjeto = useCallback((
     novoProjeto: Project
-  ) {
+  ) => {
 
     setMeusProjetos(
       (projetosAtuais) => [
@@ -304,16 +384,16 @@ export default function App() {
       false
     );
 
-  }
+  }, []);
 
 
   /* ==========================================================
      ATUALIZAR PROJETO
      ========================================================== */
 
-     function atualizarProjeto(
+     const atualizarProjeto = useCallback((
       projetoAtualizado: Project
-    ) {
+    ) => {
     
     
       /* ========================================================
@@ -362,18 +442,20 @@ export default function App() {
             : projetoAtual
       );
     
-    }
+    }, []);
 
 
   /* ==========================================================
      ABRIR PROJETO
      ========================================================== */
 
-  function abrirProjeto(
+  const abrirProjeto = useCallback((
     projeto: Project,
     secao: SecaoDetalhesProjeto =
       'informacoes'
-  ) {
+  ) => {
+
+    void carregarProjectDetailsModal();
 
     setSecaoInicialDoModal(
       secao
@@ -384,32 +466,32 @@ export default function App() {
       projeto
     );
 
-  }
+  }, []);
 
 
   /* ==========================================================
      ABRIR PROJETO PELO KANBAN GLOBAL
      ========================================================== */
 
-  function abrirProjetoDoKanban(
+  const abrirProjetoDoKanban = useCallback((
     projeto: Project
-  ) {
+  ) => {
 
     abrirProjeto(
       projeto,
       'informacoes'
     );
 
-  }
+  }, [abrirProjeto]);
 
 
   /* ==========================================================
      ABRIR ALERTA
      ========================================================== */
 
-  function abrirAlerta(
+  const abrirAlerta = useCallback((
     alerta: AlertaPrazo
-  ) {
+  ) => {
 
     const projeto =
 
@@ -513,98 +595,10 @@ export default function App() {
       secao
     );
 
-  }
-
-
-  /* ==========================================================
-     FILTRAR PROJETOS
-     ========================================================== */
-
-  function filtrarProjetos<
-    T extends {
-      code: string;
-      status: string;
-      responsible: string;
-    }
-  >(
-    listaDeProjetos: T[]
-  ) {
-
-    return listaDeProjetos.filter(
-      (projeto) => {
-
-
-        /* -----------------------------------------------------
-           PROJETO
-           ----------------------------------------------------- */
-
-        const correspondeAoProjeto =
-
-          filtrosAplicados.projeto ===
-            'Todos os projetos' ||
-
-          projeto.code ===
-            filtrosAplicados.projeto;
-
-
-        /* -----------------------------------------------------
-           STATUS
-           ----------------------------------------------------- */
-
-        const correspondeAoStatus =
-
-          filtrosAplicados.status ===
-            'Todos os status' ||
-
-          projeto.status ===
-            filtrosAplicados.status;
-
-
-        /* -----------------------------------------------------
-           RESPONSÁVEL
-           ----------------------------------------------------- */
-
-        const nomeDoResponsavel =
-
-          projeto.responsible
-            .toLowerCase();
-
-
-        const responsavelPesquisado =
-
-          filtrosAplicados
-            .responsavel
-            .trim()
-            .toLowerCase();
-
-
-        const correspondeAoResponsavel =
-
-          responsavelPesquisado === '' ||
-
-          nomeDoResponsavel.includes(
-            responsavelPesquisado
-          );
-
-
-        /* -----------------------------------------------------
-           RESULTADO
-           ----------------------------------------------------- */
-
-        return (
-
-          correspondeAoProjeto &&
-
-          correspondeAoStatus &&
-
-          correspondeAoResponsavel
-
-        );
-
-      }
-    );
-
-  }
+  }, [
+    abrirProjeto,
+    meusProjetos,
+  ]);
 
 
   /* ==========================================================
@@ -613,16 +607,48 @@ export default function App() {
 
   const meusProjetosFiltrados =
 
-    filtrarProjetos(
-      meusProjetos
+    useMemo(
+      () => filtrarProjetos(
+        meusProjetos,
+        filtrosAplicados
+      ),
+      [
+        meusProjetos,
+        filtrosAplicados,
+      ]
     );
 
 
   const projetosCompartilhadosFiltrados =
 
-    filtrarProjetos(
-      sharedProjects
+    useMemo(
+      () => filtrarProjetos(
+        sharedProjects,
+        filtrosAplicados
+      ),
+      [
+        filtrosAplicados,
+      ]
     );
+
+
+  const todosOsProjetos =
+    useMemo(
+      () => [
+        ...meusProjetos,
+        ...sharedProjects,
+      ],
+      [
+        meusProjetos,
+      ]
+    );
+
+
+  const alternarBarraLateral = useCallback(() => {
+    setBarraLateralRecolhida(
+      (estadoAtual) => !estadoAtual
+    );
+  }, []);
 
 
   /* ==========================================================
@@ -648,11 +674,8 @@ export default function App() {
           barraLateralRecolhida
         }
 
-        onToggle={() =>
-          setBarraLateralRecolhida(
-            (estadoAtual) =>
-              !estadoAtual
-          )
+        onToggle={
+          alternarBarraLateral
         }
 
         paginaAtiva={
@@ -674,7 +697,7 @@ export default function App() {
           flex
           min-h-screen
           flex-col
-          transition-all
+          transition-[margin]
           duration-300
           ease-in-out
 
@@ -692,10 +715,9 @@ export default function App() {
             ==================================================== */}
 
         <Header
-          projetos={[
-            ...meusProjetos,
-            ...sharedProjects,
-          ]}
+          projetos={
+            todosOsProjetos
+          }
 
           aoSelecionarAlerta={
             abrirAlerta
@@ -789,6 +811,14 @@ export default function App() {
               <button
                 type="button"
 
+                onMouseEnter={() => {
+                  void carregarCreateProjectModal();
+                }}
+
+                onFocus={() => {
+                  void carregarCreateProjectModal();
+                }}
+
                 onClick={() =>
                   setModalCriarProjetoAberto(
                     true
@@ -807,7 +837,7 @@ export default function App() {
                   font-medium
                   text-white
                   shadow-sm
-                  transition-all
+                  transition-[background-color,box-shadow]
                   hover:bg-institution-700
                   hover:shadow-md
                 "
@@ -828,17 +858,19 @@ export default function App() {
 
             {modalCriarProjetoAberto && (
 
-              <CreateProjectModal
-                aoFechar={() =>
-                  setModalCriarProjetoAberto(
-                    false
-                  )
-                }
+              <Suspense fallback={<CarregamentoDoModal />}>
+                <CreateProjectModal
+                  aoFechar={() =>
+                    setModalCriarProjetoAberto(
+                      false
+                    )
+                  }
 
-                aoCriarProjeto={
-                  adicionarNovoProjeto
-                }
-              />
+                  aoCriarProjeto={
+                    adicionarNovoProjeto
+                  }
+                />
+              </Suspense>
 
             )}
 
@@ -957,11 +989,13 @@ export default function App() {
             {abaAtiva ===
               'strategic' && (
 
-              <StrategicView
-                axes={
-                  strategicAxes
-                }
-              />
+              <Suspense fallback={<CarregamentoDaSecao />}>
+                <StrategicView
+                  axes={
+                    strategicAxes
+                  }
+                />
+              </Suspense>
 
             )}
 
@@ -985,19 +1019,21 @@ export default function App() {
             "
           >
 
-<GlobalProjectKanban
-  projetos={
-    meusProjetos
-  }
+            <Suspense fallback={<CarregamentoDaSecao />}>
+              <GlobalProjectKanban
+                projetos={
+                  meusProjetos
+                }
 
-  aoAbrirProjeto={
-    abrirProjetoDoKanban
-  }
+                aoAbrirProjeto={
+                  abrirProjetoDoKanban
+                }
 
-  aoAtualizarProjeto={
-    atualizarProjeto
-  }
-/>
+                aoAtualizarProjeto={
+                  atualizarProjeto
+                }
+              />
+            </Suspense>
 
           </main>
 
@@ -1072,25 +1108,27 @@ export default function App() {
 
       {projetoSelecionado && (
 
-        <ProjectDetailsModal
-          projeto={
-            projetoSelecionado
-          }
+        <Suspense fallback={<CarregamentoDoModal />}>
+          <ProjectDetailsModal
+            projeto={
+              projetoSelecionado
+            }
 
-          secaoInicial={
-            secaoInicialDoModal
-          }
+            secaoInicial={
+              secaoInicialDoModal
+            }
 
-          aoFechar={() =>
-            setProjetoSelecionado(
-              null
-            )
-          }
+            aoFechar={() =>
+              setProjetoSelecionado(
+                null
+              )
+            }
 
-          aoAtualizarProjeto={
-            atualizarProjeto
-          }
-        />
+            aoAtualizarProjeto={
+              atualizarProjeto
+            }
+          />
+        </Suspense>
 
       )}
 

@@ -19,8 +19,8 @@ import type { StrategicAxis } from '@/data/projects';
    src/data/projects.ts
    ============================================================ */
 
-interface PlanejamentoEstrategicoProps {
-  eixos: StrategicAxis[];
+interface StrategicViewProps {
+  axes: StrategicAxis[];
 }
 
 
@@ -125,7 +125,7 @@ function LinhaDoEixo({
         border-gray-200
         bg-white
         shadow-card
-        transition-all
+        transition-[border-color,box-shadow]
         hover:border-institution-200
         hover:shadow-card-hover
       "
@@ -285,7 +285,7 @@ function LinhaDoEixo({
               border
               border-gray-200
               text-gray-500
-              transition-all
+              transition-colors
               hover:border-institution-200
               hover:bg-institution-50
               hover:text-institution-600

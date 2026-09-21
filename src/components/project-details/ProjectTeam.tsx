@@ -267,7 +267,10 @@ export default function ProjectTeam({
      ========================================================== */
 
   const equipe =
-    projeto.team ?? [];
+    useMemo(
+      () => projeto.team ?? [],
+      [projeto.team]
+    );
 
 
   /* ==========================================================

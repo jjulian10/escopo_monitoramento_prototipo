@@ -424,7 +424,7 @@ import {
                 py-2
                 text-xs
                 font-medium
-                transition-all
+                transition-colors
   
                 ${
                   filtro ===
@@ -465,7 +465,7 @@ import {
                 py-2
                 text-xs
                 font-medium
-                transition-all
+                transition-colors
   
                 ${
                   filtro ===
@@ -506,7 +506,7 @@ import {
                 py-2
                 text-xs
                 font-medium
-                transition-all
+                transition-colors
   
                 ${
                   filtro ===
