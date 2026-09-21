@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useState,
 } from 'react';
 
@@ -51,6 +52,38 @@ export default function CreateProjectModal({
   aoFechar,
   aoCriarProjeto,
 }: CreateProjectModalProps) {
+
+
+  /* ==========================================================
+     BLOQUEIO DA ROLAGEM DA PÁGINA DE FUNDO
+
+     O formulário mantém a própria rolagem, mas o documento não
+     deve continuar se movendo quando o usuário chega aos limites
+     superior ou inferior do conteúdo do modal.
+     ========================================================== */
+
+  useEffect(() => {
+    const body = document.body;
+    const root = document.documentElement;
+    const scrollbarWidth = window.innerWidth - root.clientWidth;
+
+    const previousBodyOverflow = body.style.overflow;
+    const previousBodyPaddingRight = body.style.paddingRight;
+    const previousRootOverflow = root.style.overflow;
+
+    body.style.overflow = 'hidden';
+    root.style.overflow = 'hidden';
+
+    if (scrollbarWidth > 0) {
+      body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    return () => {
+      body.style.overflow = previousBodyOverflow;
+      body.style.paddingRight = previousBodyPaddingRight;
+      root.style.overflow = previousRootOverflow;
+    };
+  }, []);
 
 
   /* ==========================================================

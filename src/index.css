@@ -583,6 +583,11 @@
   width: 100vw !important;
   max-width: none !important;
   margin: 0 !important;
+  overscroll-behavior: none;
+}
+
+.scope-create-modal-panel > main {
+  overscroll-behavior: contain;
 }
 
 .scope-create-modal-panel,
