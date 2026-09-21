@@ -651,6 +651,11 @@ export default function App() {
   }, []);
 
 
+  const prepararDetalhesDoProjeto = useCallback(() => {
+    void carregarProjectDetailsModal();
+  }, []);
+
+
   /* ==========================================================
      INTERFACE
      ========================================================== */
@@ -947,6 +952,10 @@ export default function App() {
                 aoAbrirProjeto={
                   abrirProjeto
                 }
+
+                aoPrepararProjeto={
+                  prepararDetalhesDoProjeto
+                }
               />
 
             )}
@@ -976,6 +985,10 @@ export default function App() {
 
                 aoAbrirProjeto={
                   abrirProjeto
+                }
+
+                aoPrepararProjeto={
+                  prepararDetalhesDoProjeto
                 }
               />
 

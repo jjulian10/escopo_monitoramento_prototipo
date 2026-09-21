@@ -60,6 +60,8 @@ interface ListaDeProjetosProps {
     projeto: Project,
     secao?: SecaoDetalhesProjeto
   ) => void;
+
+  aoPrepararProjeto?: () => void;
 }
 
 
@@ -302,6 +304,8 @@ interface LinhaDoProjetoProps {
     projeto: Project,
     secao: SecaoDetalhesProjeto
   ) => void;
+
+  aoPrepararProjeto?: () => void;
 }
 
 
@@ -314,6 +318,7 @@ function LinhaDoProjeto({
   indice,
   mostrarAcesso,
   aoAbrirProjeto,
+  aoPrepararProjeto,
 }: LinhaDoProjetoProps) {
 
 
@@ -358,6 +363,14 @@ function LinhaDoProjeto({
   return (
 
     <div
+      onMouseEnter={
+        aoPrepararProjeto
+      }
+
+      onFocusCapture={
+        aoPrepararProjeto
+      }
+
       className="
         animate-fade-in-up
         overflow-hidden
@@ -1354,6 +1367,7 @@ function ProjectList({
   badge: quantidade,
   showAccess: mostrarAcesso,
   aoAbrirProjeto,
+  aoPrepararProjeto,
 }: ListaDeProjetosProps) {
 
 
@@ -1547,6 +1561,10 @@ function ProjectList({
 
                 aoAbrirProjeto={
                   abrirProjeto
+                }
+
+                aoPrepararProjeto={
+                  aoPrepararProjeto
                 }
               />
 
