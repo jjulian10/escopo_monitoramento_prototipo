@@ -12,6 +12,7 @@ import {
   Minus,
   ListChecks,
   Columns3,
+  Filter,
 } from 'lucide-react';
 
 import type {
@@ -41,6 +42,8 @@ interface ListaDeProjetosProps {
 
   showAccess?: boolean;
 
+  showStatusFilter?: boolean;
+
   /*
    * Mantido por compatibilidade com o App.tsx.
    *
@@ -63,6 +66,89 @@ interface ListaDeProjetosProps {
 
   aoPrepararProjeto?: () => void;
 }
+
+
+/* ============================================================
+   CONFIGURAÇÃO DOS STATUS DOS PROJETOS
+   ============================================================ */
+
+type FiltroRapidoStatus =
+  | 'Todos'
+  | StatusType;
+
+
+const filtrosRapidosStatus: Array<{
+  valor: FiltroRapidoStatus;
+  rotulo: string;
+  classeAtiva: string;
+  classePonto: string;
+}> = [
+  {
+    valor:
+      'Todos',
+
+    rotulo:
+      'Todos',
+
+    classeAtiva:
+      'border-institution-200 bg-institution-50 text-institution-700',
+
+    classePonto:
+      'bg-institution-500',
+  },
+  {
+    valor:
+      'Em andamento',
+
+    rotulo:
+      'Em andamento',
+
+    classeAtiva:
+      'border-blue-200 bg-blue-50 text-blue-700',
+
+    classePonto:
+      'bg-blue-500',
+  },
+  {
+    valor:
+      'Concluído',
+
+    rotulo:
+      'Concluídos',
+
+    classeAtiva:
+      'border-green-200 bg-green-50 text-green-700',
+
+    classePonto:
+      'bg-green-500',
+  },
+  {
+    valor:
+      'Pausado',
+
+    rotulo:
+      'Pausados',
+
+    classeAtiva:
+      'border-gray-300 bg-gray-100 text-gray-700',
+
+    classePonto:
+      'bg-gray-400',
+  },
+  {
+    valor:
+      'Atrasado',
+
+    rotulo:
+      'Atrasados',
+
+    classeAtiva:
+      'border-red-200 bg-red-50 text-red-700',
+
+    classePonto:
+      'bg-red-500',
+  },
+];
 
 
 /* ============================================================
@@ -1366,9 +1452,42 @@ function ProjectList({
   title: titulo,
   badge: quantidade,
   showAccess: mostrarAcesso,
+  showStatusFilter: mostrarFiltroStatus,
   aoAbrirProjeto,
   aoPrepararProjeto,
 }: ListaDeProjetosProps) {
+
+
+  /* ==========================================================
+     FILTRO RÁPIDO POR STATUS
+     ========================================================== */
+
+  const [
+    filtroStatus,
+    setFiltroStatus,
+  ] = useState<FiltroRapidoStatus>(
+    'Todos'
+  );
+
+
+  const projetosExibidos =
+    !mostrarFiltroStatus ||
+    filtroStatus ===
+      'Todos'
+
+      ? projetos
+
+      : projetos.filter(
+          (projeto) =>
+            projeto.status ===
+            filtroStatus
+        );
+
+
+  const quantidadeExibida =
+    mostrarFiltroStatus
+      ? projetosExibidos.length
+      : quantidade;
 
 
   /* ==========================================================
@@ -1460,7 +1579,7 @@ function ProjectList({
               text-institution-700
             "
           >
-            {quantidade}
+            {quantidadeExibida}
           </span>
 
         </div>
@@ -1529,14 +1648,168 @@ function ProjectList({
 
 
       {/* ======================================================
+          FILTRO RÁPIDO DE STATUS
+          ====================================================== */}
+
+      {mostrarFiltroStatus && (
+
+        <div
+          className="
+            mb-4
+            flex
+            flex-wrap
+            items-center
+            gap-2
+          "
+        >
+
+          <div
+            className="
+              mr-1
+              flex
+              items-center
+              gap-1.5
+              text-xs
+              font-medium
+              text-gray-400
+            "
+          >
+
+            <Filter className="h-3.5 w-3.5" />
+
+            Filtrar:
+
+          </div>
+
+
+          {filtrosRapidosStatus.map(
+            (opcao) => {
+
+              const ativo =
+                filtroStatus ===
+                opcao.valor;
+
+
+              const quantidadeDoFiltro =
+                opcao.valor ===
+                  'Todos'
+
+                  ? projetos.length
+
+                  : projetos.filter(
+                      (projeto) =>
+                        projeto.status ===
+                        opcao.valor
+                    ).length;
+
+
+              return (
+
+                <button
+                  key={
+                    opcao.valor
+                  }
+
+                  type="button"
+
+                  onClick={() =>
+                    setFiltroStatus(
+                      opcao.valor
+                    )
+                  }
+
+                  aria-pressed={
+                    ativo
+                  }
+
+                  className={`
+                    inline-flex
+                    items-center
+                    gap-2
+                    rounded-full
+                    border
+                    px-3
+                    py-1.5
+                    text-xs
+                    font-semibold
+                    transition-all
+                    duration-200
+
+                    ${
+                      ativo
+                        ? `
+                          ${opcao.classeAtiva}
+                          shadow-sm
+                        `
+                        : `
+                          border-gray-200
+                          bg-white
+                          text-gray-500
+                          hover:border-gray-300
+                          hover:bg-gray-50
+                          hover:text-gray-700
+                        `
+                    }
+                  `}
+                >
+
+                  <span
+                    className={`
+                      h-2
+                      w-2
+                      rounded-full
+
+                      ${opcao.classePonto}
+                    `}
+                  />
+
+
+                  {opcao.rotulo}
+
+
+                  <span
+                    className={`
+                      inline-flex
+                      min-w-[20px]
+                      items-center
+                      justify-center
+                      rounded-full
+                      px-1.5
+                      py-0.5
+                      text-[10px]
+                      font-bold
+
+                      ${
+                        ativo
+                          ? 'bg-white/70 text-current'
+                          : 'bg-gray-100 text-gray-500'
+                      }
+                    `}
+                  >
+                    {quantidadeDoFiltro}
+                  </span>
+
+                </button>
+
+              );
+
+            }
+          )}
+
+        </div>
+
+      )}
+
+
+      {/* ======================================================
           LISTA DOS PROJETOS
           ====================================================== */}
 
       <div className="space-y-3">
 
-        {projetos.length > 0 ? (
+        {projetosExibidos.length > 0 ? (
 
-          projetos.map(
+          projetosExibidos.map(
             (
               projeto,
               indice
@@ -1592,7 +1865,11 @@ function ProjectList({
                 text-gray-600
               "
             >
-              Nenhum projeto encontrado.
+              {mostrarFiltroStatus &&
+              filtroStatus !==
+                'Todos'
+                ? 'Nenhum projeto encontrado para este status.'
+                : 'Nenhum projeto encontrado.'}
             </p>
 
 
@@ -1603,7 +1880,11 @@ function ProjectList({
                 text-gray-400
               "
             >
-              Altere ou limpe os filtros para visualizar outros projetos.
+              {mostrarFiltroStatus &&
+              filtroStatus !==
+                'Todos'
+                ? 'Selecione outro status para visualizar seus projetos.'
+                : 'Altere ou limpe os filtros para visualizar outros projetos.'}
             </p>
 
           </div>
