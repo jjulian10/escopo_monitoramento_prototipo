@@ -27,6 +27,8 @@ import SummaryCards from '@/components/SummaryCards';
 
 import ProjectList from '@/components/ProjectList';
 
+import ProjectSuccessModal from '@/components/ProjectSuccessModal';
+
 import {
   sincronizarExecucaoDoProjeto,
 } from '@/utils/projectProgress';
@@ -77,6 +79,10 @@ import type {
 import type {
   PaginaPrincipal,
 } from '@/components/Sidebar';
+
+import type {
+  ProjectSuccessType,
+} from '@/components/ProjectSuccessModal';
 
 
 /* ============================================================
@@ -210,6 +216,21 @@ export default function App() {
     modalCriarProjetoAberto,
     setModalCriarProjetoAberto,
   ] = useState(false);
+
+
+  /* ==========================================================
+     FEEDBACK DE SUCESSO DO PROJETO
+     ========================================================== */
+
+  const [
+    feedbackProjeto,
+    setFeedbackProjeto,
+  ] = useState<{
+    tipo: ProjectSuccessType;
+    projeto: Project;
+  } | null>(
+    null
+  );
 
 
   /* ==========================================================
@@ -384,6 +405,15 @@ export default function App() {
       false
     );
 
+
+    setFeedbackProjeto({
+      tipo:
+        'created',
+
+      projeto:
+        novoProjeto,
+    });
+
   }, []);
 
 
@@ -404,6 +434,44 @@ export default function App() {
         sincronizarExecucaoDoProjeto(
           projetoAtualizado
         );
+
+
+      /* ========================================================
+         DETECTA CONCLUSÃO DO PROJETO
+         ======================================================== */
+
+      const projetoAnterior =
+        meusProjetos.find(
+          (projeto) =>
+            projeto.id ===
+            projetoSincronizado.id
+        );
+
+
+      const acabouDeSerConcluido =
+        projetoAnterior !==
+          undefined &&
+
+        projetoAnterior.status !==
+          'Concluído' &&
+
+        projetoSincronizado.status ===
+          'Concluído';
+
+
+      if (
+        acabouDeSerConcluido
+      ) {
+
+        setFeedbackProjeto({
+          tipo:
+            'completed',
+
+          projeto:
+            projetoSincronizado,
+        });
+
+      }
     
     
       /* ========================================================
@@ -442,7 +510,9 @@ export default function App() {
             : projetoAtual
       );
     
-    }, []);
+    }, [
+      meusProjetos,
+    ]);
 
 
   /* ==========================================================
@@ -648,6 +718,15 @@ export default function App() {
     setBarraLateralRecolhida(
       (estadoAtual) => !estadoAtual
     );
+  }, []);
+
+
+  const fecharFeedbackProjeto = useCallback(() => {
+
+    setFeedbackProjeto(
+      null
+    );
+
   }, []);
 
 
@@ -945,6 +1024,8 @@ export default function App() {
                   meusProjetosFiltrados.length
                 }
 
+                showStatusFilter
+
                 aoAtualizarProjeto={
                   atualizarProjeto
                 }
@@ -1142,6 +1223,29 @@ export default function App() {
             }
           />
         </Suspense>
+
+      )}
+
+
+      {/* ======================================================
+          FEEDBACK DE SUCESSO
+          ====================================================== */}
+
+      {feedbackProjeto && (
+
+        <ProjectSuccessModal
+          tipo={
+            feedbackProjeto.tipo
+          }
+
+          projeto={
+            feedbackProjeto.projeto
+          }
+
+          aoFechar={
+            fecharFeedbackProjeto
+          }
+        />
 
       )}
 
